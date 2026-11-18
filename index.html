@@ -1,0 +1,1297 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Laboratori de dispositius de xarxa</title>
+<style>
+:root {
+  /* Paleta del departament (plantilla MP0225) */
+  --navy: #14284B;
+  --blue: #1F5A8A;
+  --yellow: #F4C430;
+  --light: #F2F7FC;
+  --ice: #DCEBF7;
+  --text: #1B2A3A;
+  --paper: #FFFFFF;
+  --muted: #5B6B7D;
+  --line: #C9D6E3;
+  --ok: #2E7D4F;
+  --ok-bg: #E3F2E8;
+  --bad: #B3261E;
+  --bad-bg: #FBE9E7;
+  --note-bg: #FFF4CC;
+  --note-line: #E8C34A;
+  --font: Calibri, Carlito, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  /* Disseny: capçalera fosca + pestanyes; a cada pestanya, simulació a l'esquerra i panell de control a la dreta */
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--light); color: var(--text); font-family: var(--font); font-size: 17px; line-height: 1.45; }
+button, select, input { font-family: inherit; font-size: inherit; }
+:focus-visible { outline: 3px solid var(--yellow); outline-offset: 2px; }
+
+header.top { background: var(--navy); color: #fff; padding: 22px 24px 18px; position: relative; overflow: hidden; }
+header.top::before, header.top::after { content: ""; position: absolute; border-radius: 50%; background: var(--blue); opacity: .55; }
+header.top::before { width: 220px; height: 220px; right: -60px; top: -110px; }
+header.top::after { width: 120px; height: 120px; left: -50px; bottom: -70px; }
+.top-inner { position: relative; z-index: 1; max-width: 1240px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end; justify-content: space-between; }
+.eyebrow { color: var(--yellow); font-weight: 700; letter-spacing: .08em; font-size: 14px; text-transform: uppercase; }
+h1 { margin: 4px 0 2px; font-size: 32px; line-height: 1.15; text-wrap: balance; }
+.sub { margin: 0; color: #D6E2EF; }
+.speed { display: flex; gap: 8px; align-items: center; color: #D6E2EF; font-size: 15px; }
+.speed select { padding: 6px 8px; border-radius: 8px; border: 1px solid #3E5A80; background: #0F2040; color: #fff; }
+
+nav.tabs { background: var(--paper); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 5; }
+.tabs-inner { max-width: 1240px; margin: 0 auto; display: flex; gap: 4px; overflow-x: auto; padding: 0 16px; }
+.tab { border: 0; background: none; padding: 14px 14px 12px; color: var(--muted); font-weight: 700; cursor: pointer; border-bottom: 4px solid transparent; white-space: nowrap; }
+.tab .n { display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--ice); color: var(--navy); font-size: 14px; margin-right: 6px; }
+.tab[aria-selected="true"] { color: var(--navy); border-bottom-color: var(--yellow); }
+.tab[aria-selected="true"] .n { background: var(--navy); color: #fff; }
+
+main { max-width: 1240px; margin: 0 auto; padding: 20px 16px 40px; }
+section.view { display: none; }
+section.view.active { display: block; }
+.lead { display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: baseline; margin-bottom: 14px; }
+.lead h2 { margin: 0; font-size: 26px; color: var(--navy); }
+.lead p { margin: 0; color: var(--muted); max-width: 70ch; }
+
+.grid { display: grid; grid-template-columns: minmax(0, 3fr) minmax(300px, 2fr); gap: 18px; align-items: start; }
+@media (max-width: 920px) { .grid { grid-template-columns: 1fr; } }
+.card { background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 16px; }
+.card h3 { margin: 0 0 10px; font-size: 18px; color: var(--navy); }
+.stack { display: flex; flex-direction: column; gap: 14px; }
+svg.sim { width: 100%; height: auto; display: block; }
+
+.note { background: var(--note-bg); border: 1px solid var(--note-line); border-radius: 10px; padding: 10px 14px; }
+.note ol, .note ul { margin: 6px 0 0; padding-left: 22px; }
+.think { background: var(--ice); border-radius: 10px; padding: 10px 14px; font-style: italic; }
+.think b { font-style: normal; color: var(--blue); letter-spacing: .05em; font-size: 13px; display: block; text-transform: uppercase; }
+
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+label.f { display: flex; flex-direction: column; gap: 4px; font-size: 14px; color: var(--muted); font-weight: 700; }
+select.in, input.in { padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--text); min-width: 90px; }
+.btn { border: 0; border-radius: 10px; padding: 10px 16px; font-weight: 700; cursor: pointer; background: var(--navy); color: #fff; }
+.btn:hover { background: var(--blue); }
+.btn.alt { background: var(--ice); color: var(--navy); }
+.btn.alt:hover { background: #C8DDF0; }
+.btn.yel { background: var(--yellow); color: var(--navy); }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.seg { display: inline-flex; border: 2px solid var(--navy); border-radius: 10px; overflow: hidden; }
+.seg button { border: 0; padding: 8px 16px; background: #fff; color: var(--navy); font-weight: 700; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--navy); color: #fff; }
+.check { display: flex; gap: 8px; align-items: center; cursor: pointer; }
+.check input { width: 20px; height: 20px; accent-color: var(--navy); }
+
+ol.log { margin: 0; padding-left: 22px; min-height: 60px; }
+ol.log li { margin: 0 0 6px; }
+ol.log li.new { animation: flash 1.2s ease-out; }
+@keyframes flash { from { background: var(--note-bg); } to { background: transparent; } }
+.empty { color: var(--muted); font-style: italic; }
+
+table.t { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+table.t th { background: var(--navy); color: #fff; text-align: left; padding: 8px 10px; font-size: 15px; }
+table.t td { padding: 8px 10px; border-bottom: 1px solid var(--line); }
+table.t tr:nth-child(even) td { background: var(--light); }
+table.t td.ok { background: var(--ok-bg) !important; }
+table.t td.bad { background: var(--bad-bg) !important; }
+.scroll { overflow-x: auto; }
+
+.pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-weight: 700; font-size: 14px; }
+.pill.ok { background: var(--ok-bg); color: var(--ok); }
+.pill.bad { background: var(--bad-bg); color: var(--bad); }
+.stat { display: flex; gap: 10px; align-items: baseline; }
+.stat strong { font-size: 28px; color: var(--navy); font-variant-numeric: tabular-nums; }
+
+.portpick { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0; }
+.portpick button { border: 2px solid var(--navy); background: #fff; color: var(--navy); border-radius: 8px; padding: 8px 14px; font-weight: 700; cursor: pointer; }
+.portpick button[aria-pressed="true"] { background: var(--navy); color: #fff; }
+.portpick button:disabled { opacity: .35; cursor: not-allowed; }
+.feedback { margin-top: 8px; font-weight: 700; }
+.feedback.ok { color: var(--ok); }
+.feedback.bad { color: var(--bad); }
+.hidden { display: none !important; }
+
+.scen { display: flex; flex-wrap: wrap; gap: 8px; }
+.scen button { border: 1px solid var(--line); background: #fff; border-radius: 10px; padding: 8px 12px; cursor: pointer; color: var(--text); font-weight: 700; }
+.scen button[aria-pressed="true"] { border-color: var(--navy); background: var(--ice); color: var(--navy); }
+
+footer { max-width: 1240px; margin: 0 auto; padding: 0 16px 30px; color: var(--muted); font-size: 14px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+@media (prefers-reduced-motion: reduce) { ol.log li.new { animation: none; } }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-inner">
+    <div>
+      <div class="eyebrow">MP0225 · Xarxes locals · RA2</div>
+      <h1>A1. Dispositius de connexió</h1>
+      <p class="sub">Laboratori interactiu. La pregunta de tot el bloc: quan un equip envia un missatge, qui el rep?</p>
+    </div>
+    <label class="speed" for="speed">Velocitat de les animacions
+      <select id="speed">
+        <option value="0.5">Lenta (per projectar)</option>
+        <option value="1" selected>Normal</option>
+        <option value="2">Ràpida</option>
+      </select>
+    </label>
+  </div>
+</header>
+
+<nav class="tabs" aria-label="Activitats">
+  <div class="tabs-inner" role="tablist">
+    <button class="tab" role="tab" data-view="hub-switch" aria-selected="true"><span class="n">1</span>Hub o switch?</button>
+    <button class="tab" role="tab" data-view="ets-switch" aria-selected="false"><span class="n">2</span>Ets el switch</button>
+    <button class="tab" role="tab" data-view="collisions" aria-selected="false"><span class="n">3</span>Col·lisions</button>
+    <button class="tab" role="tab" data-view="ets-a" aria-selected="false"><span class="n">4</span>Ets l'ordinador A</button>
+    <button class="tab" role="tab" data-view="router" aria-selected="false"><span class="n">5</span>Router i porta d'enllaç</button>
+    <button class="tab" role="tab" data-view="dominis" aria-selected="false"><span class="n">6</span>Comptar dominis</button>
+    <button class="tab" role="tab" data-view="repas" aria-selected="false"><span class="n">7</span>Repàs: taula resum</button>
+  </div>
+</nav>
+
+<main>
+<!-- ============ 1. HUB O SWITCH ============ -->
+<section class="view active" id="view-hub-switch">
+  <div class="lead">
+    <h2>Hub o switch?</h2>
+    <p>Diapositives 7–8 i 17–21. Envia una trama i mira per quins ports surt. El switch apunta a la seva taula on és cada equip.</p>
+  </div>
+  <div class="grid">
+    <div class="stack">
+      <div class="card">
+        <div class="row" style="justify-content:space-between;margin-bottom:8px">
+          <div class="seg" role="group" aria-label="Aparell central">
+            <button id="m-hub" aria-pressed="false">Hub</button>
+            <button id="m-switch" aria-pressed="true">Switch</button>
+          </div>
+          <div class="stat"><strong id="wasted">0</strong><span>trames rebudes per equips que no eren el destinatari</span></div>
+        </div>
+        <svg class="sim" id="sim1" viewBox="0 0 600 420" role="img" aria-label="Quatre equips, A, B, C i D, connectats a un aparell central"></svg>
+      </div>
+      <div class="card">
+        <h3>Seqüència de la diapositiva 19</h3>
+        <p style="margin:0 0 10px">Fes-la en ordre amb el switch. Abans de cada pas, que la classe digui per quins ports sortirà.</p>
+        <div class="row">
+          <button class="btn alt" data-seq="A,C">1. A envia a C</button>
+          <button class="btn alt" data-seq="C,A">2. C respon a A</button>
+          <button class="btn alt" data-seq="A,C">3. A torna a enviar a C</button>
+          <button class="btn alt" data-seq="B,D">4. B envia a D</button>
+        </div>
+      </div>
+    </div>
+    <div class="stack">
+      <div class="card">
+        <h3>Envia una trama</h3>
+        <div class="row">
+          <label class="f" for="src1">Origen
+            <select class="in" id="src1"><option>A</option><option>B</option><option>C</option><option>D</option></select>
+          </label>
+          <label class="f" for="dst1">Destí
+            <select class="in" id="dst1"><option>A</option><option>B</option><option selected>C</option><option>D</option><option value="ALL">Tots (difusió, com l'ARP)</option></select>
+          </label>
+          <button class="btn" id="send1" style="align-self:flex-end">Envia</button>
+        </div>
+        <label class="check" style="margin-top:10px" for="pred1"><input type="checkbox" id="pred1"> Abans d'enviar, endevina per quins ports sortirà</label>
+        <div id="predbox" class="note hidden" style="margin-top:10px">
+          <div><b>Per quins ports sortirà la trama?</b> Marca'ls i prem «Comprova».</div>
+          <div class="portpick" id="portpick"></div>
+          <button class="btn" id="predgo">Comprova i envia</button>
+          <div class="feedback" id="predfb"></div>
+        </div>
+        <p id="msg1" class="feedback bad" role="status"></p>
+      </div>
+      <div class="card">
+        <h3>Què ha passat, pas a pas</h3>
+        <ol class="log" id="log1"><li class="empty">Encara no s'ha enviat res.</li></ol>
+      </div>
+      <div class="card">
+        <div class="row" style="justify-content:space-between;margin-bottom:8px">
+          <h3 style="margin:0">Taula CAM del switch</h3>
+          <button class="btn alt" id="reset1">Reinicia (taula buida)</button>
+        </div>
+        <div id="cam1"></div>
+      </div>
+      <div class="think"><b>Pensa-hi com...</b>El hub és un megàfon: encara que parlis a una persona, ho sent tothom. El switch és el recepcionista d'un hotel que sap a quina habitació és cada hoste.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 2. COL·LISIONS ============ -->
+<section class="view" id="view-collisions">
+  <div class="lead">
+    <h2>Col·lisions</h2>
+    <p>Diapositives 8–9 i 17. Què passa quan dos equips envien alhora? Prova-ho amb el hub i amb el switch.</p>
+  </div>
+  <div class="grid">
+    <div class="stack">
+      <div class="card">
+        <div class="row" style="justify-content:space-between;margin-bottom:8px">
+          <div class="seg" role="group" aria-label="Aparell central">
+            <button id="c-hub" aria-pressed="true">Hub</button>
+            <button id="c-switch" aria-pressed="false">Switch</button>
+          </div>
+          <div class="stat"><strong id="ccount">0</strong><span>col·lisions</span></div>
+        </div>
+        <svg class="sim" id="sim2" viewBox="0 0 600 340" role="img" aria-label="A i B envien a C a través d'un aparell central"></svg>
+      </div>
+    </div>
+    <div class="stack">
+      <div class="card">
+        <h3>Prova</h3>
+        <button class="btn yel" id="go2">A i B envien a C alhora</button>
+      </div>
+      <div class="card">
+        <h3>Què ha passat, pas a pas</h3>
+        <ol class="log" id="log2"><li class="empty">Prem el botó per començar.</li></ol>
+      </div>
+      <div class="note"><b>CSMA/CD, la norma del cable compartit</b>
+        <ol>
+          <li>Escoltar abans de parlar. Si algú envia, esperar.</li>
+          <li>Enviar quan el cable és lliure.</li>
+          <li>Si hi ha xoc, deixar d'enviar.</li>
+          <li>Esperar un temps a l'atzar i tornar-ho a provar.</li>
+        </ol>
+      </div>
+      <div class="think"><b>Pensa-hi com...</b>Dues persones que comencen a parlar alhora per telèfon: callen, esperen una estona diferent cadascuna i ho tornen a provar.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 3. ROUTER ============ -->
+<section class="view" id="view-router">
+  <div class="lead">
+    <h2>Router i porta d'enllaç</h2>
+    <p>Diapositives 22–25. El switch uneix equips d'una mateixa xarxa. Per passar a una altra xarxa cal el router.</p>
+  </div>
+  <div class="grid">
+    <div class="stack">
+      <div class="card">
+        <svg class="sim" id="sim3" viewBox="0 0 760 340" role="img" aria-label="Dues xarxes unides per un router"></svg>
+      </div>
+      <div class="card">
+        <h3>Configuració de PC1</h3>
+        <div class="scroll"><table class="t">
+          <tr><th>Dada</th><th>Valor</th><th>Per a què serveix</th></tr>
+          <tr><td>Adreça IP</td><td>192.168.1.10</td><td>El número de casa</td></tr>
+          <tr><td>Màscara</td><td>255.255.255.0</td><td>Fins on arriba el barri (la xarxa)</td></tr>
+          <tr><td>Porta d'enllaç</td><td id="gwval">192.168.1.1</td><td>La sortida del barri: l'adreça del router</td></tr>
+        </table></div>
+        <label class="check" style="margin-top:10px" for="gw"><input type="checkbox" id="gw" checked> PC1 té porta d'enllaç configurada</label>
+      </div>
+    </div>
+    <div class="stack">
+      <div class="card">
+        <h3>Envia des de PC1</h3>
+        <div class="stack" style="gap:8px">
+          <button class="btn" id="r-same">A PC2 (mateixa xarxa)</button>
+          <button class="btn" id="r-other">A PC3 (una altra xarxa)</button>
+          <button class="btn alt" id="r-bcast">Una difusió (per a tothom)</button>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Què ha passat, pas a pas</h3>
+        <ol class="log" id="log3"><li class="empty">Tria un enviament.</li></ol>
+      </div>
+      <div class="think"><b>Pensa-hi com...</b>Una oficina de correus: llegeix el codi postal (la IP) i decideix en quin camió surt la carta.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 4. DOMINIS ============ -->
+<section class="view" id="view-dominis">
+  <div class="lead">
+    <h2>Comptar dominis</h2>
+    <p>Diapositives 24–27. El switch separa col·lisions; només el router separa difusions.</p>
+  </div>
+  <div class="grid">
+    <div class="stack">
+      <div class="card">
+        <div class="scen" id="scen" role="group" aria-label="Exercicis"></div>
+      </div>
+      <div class="card">
+        <svg class="sim" id="sim4" viewBox="0 0 640 320" role="img" aria-label="Esquema de la xarxa de l'exercici"></svg>
+        <div class="row" style="margin-top:8px">
+          <button class="btn alt" id="showcol" aria-pressed="false">Mostra els dominis de col·lisió</button>
+          <button class="btn alt" id="showbd" aria-pressed="false">Mostra els dominis de difusió</button>
+        </div>
+      </div>
+    </div>
+    <div class="stack">
+      <div class="card">
+        <h3 id="scen-title">Exercici</h3>
+        <p id="scen-desc" style="margin-top:0"></p>
+        <div class="row">
+          <label class="f" for="ans-col">Dominis de col·lisió <input class="in" id="ans-col" type="number" min="0" max="30" inputmode="numeric"></label>
+          <label class="f" for="ans-bd">Dominis de difusió <input class="in" id="ans-bd" type="number" min="0" max="30" inputmode="numeric"></label>
+          <button class="btn" id="check4" style="align-self:flex-end">Comprova</button>
+        </div>
+        <div class="feedback" id="fb4" role="status"></div>
+        <p id="expl4" class="hidden" style="margin-bottom:0"></p>
+      </div>
+      <div class="note"><b>Com comptar-los</b>
+        <ol>
+          <li><b>Col·lisió:</b> cada cable connectat a un switch o a un router és un domini. Un hub i tot el que hi penja compten com un de sol.</li>
+          <li><b>Difusió:</b> cada connexió del router que es fa servir és un domini. Sense router, només n'hi ha un.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 5. REPÀS ============ -->
+<section class="view" id="view-repas">
+  <div class="lead">
+    <h2>Repàs: taula resum</h2>
+    <p>Diapositives 4 i 20. Omple la taula sense mirar els apunts i comprova-la.</p>
+  </div>
+  <div class="card">
+    <div class="scroll"><table class="t" id="quiz"></table></div>
+    <div class="row" style="margin-top:12px">
+      <button class="btn" id="qcheck">Comprova</button>
+      <button class="btn alt" id="qshow">Mostra la solució</button>
+      <button class="btn alt" id="qreset">Torna a començar</button>
+      <span id="qscore" class="feedback" role="status"></span>
+    </div>
+  </div>
+  <div class="note" style="margin-top:14px">Un error no compta: el que importa és que al final sàpigues explicar per què cada aparell fa el que fa.</div>
+</section>
+<!-- ============ ETS EL SWITCH ============ -->
+<section class="view" id="view-ets-switch">
+  <div class="lead">
+    <h2>Ets el switch</h2>
+    <p>En lloc de l'activitat «El switch humà» (diapositiva 21). Arriben trames una a una. Tu fas de switch: decideixes què apuntes a la llibreta i per quins ports envies cada trama.</p>
+  </div>
+  <div class="grid">
+    <div class="stack">
+      <div class="card">
+        <svg class="sim" id="sim5" viewBox="0 0 600 420" role="img" aria-label="El switch amb els equips connectats als seus ports"></svg>
+      </div>
+      <div class="card">
+        <h3>La teva llibreta (taula CAM)</h3>
+        <div id="cam5"></div>
+      </div>
+    </div>
+    <div class="stack">
+      <div class="card" id="g5">
+        <div class="row" style="justify-content:space-between">
+          <h3 style="margin:0" id="g5-title">Trama 1</h3>
+          <span class="pill" id="g5-prog" style="background:var(--ice);color:var(--navy)"></span>
+        </div>
+        <div id="g5-body" style="margin-top:10px"></div>
+      </div>
+      <div class="note"><b>Com ho fa un switch</b>
+        <ol>
+          <li>Mira <b>qui</b> envia la trama (la MAC d'origen) i apunta a la llibreta a quin port és.</li>
+          <li>Mira <b>a qui</b> va (la MAC de destí) i la busca a la llibreta.</li>
+          <li>Si la troba, l'envia només per aquell port. Si no la troba, per tots els ports menys per on ha entrat.</li>
+          <li>Una difusió (destí FF:FF:FF:FF:FF:FF) va sempre per tots els ports menys per on ha entrat.</li>
+        </ol>
+      </div>
+      <div class="think"><b>Un error no compta</b>Si t'equivoques, et sortirà la resposta correcta i per què. El que importa és entendre-ho al final.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ETS L'ORDINADOR A ============ -->
+<section class="view" id="view-ets-a">
+  <div class="lead">
+    <h2>Ets l'ordinador A</h2>
+    <p>En lloc de l'activitat «El hub humà» (diapositiva 12). Estàs connectat a un hub amb tres equips més. Tu decideixes quan envies i què fas si hi ha un xoc.</p>
+  </div>
+  <div class="grid">
+    <div class="stack">
+      <div class="card">
+        <svg class="sim" id="sim6" viewBox="0 0 600 420" role="img" aria-label="L'ordinador A connectat a un hub amb B, C i D"></svg>
+      </div>
+      <div class="card">
+        <h3>Què ha passat fins ara</h3>
+        <ol class="log" id="log6"><li class="empty">Encara no ha passat res.</li></ol>
+      </div>
+    </div>
+    <div class="stack">
+      <div class="card">
+        <div class="row" style="justify-content:space-between">
+          <h3 style="margin:0">Què fas?</h3>
+          <span class="pill" id="g6-prog" style="background:var(--ice);color:var(--navy)"></span>
+        </div>
+        <div id="g6-body" style="margin-top:10px"></div>
+      </div>
+      <div class="note"><b>Recorda: CSMA/CD</b>
+        <ol>
+          <li>Escoltar abans de parlar. Si algú envia, esperar.</li>
+          <li>Enviar quan el cable és lliure.</li>
+          <li>Si hi ha xoc, deixar d'enviar.</li>
+          <li>Esperar un temps a l'atzar i tornar-ho a provar.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <span>MP0225 · RA2 · A1 Dispositius de connexió</span>
+  <span>Complement de la presentació RA2_A1_Dispositius_de_connexio</span>
+</footer>
+
+<script>
+(function () {
+"use strict";
+var NS = "http://www.w3.org/2000/svg";
+var C = { navy: "#14284B", blue: "#1F5A8A", yellow: "#F4C430", light: "#F2F7FC", ice: "#DCEBF7", text: "#1B2A3A", line: "#C9D6E3", ok: "#2E7D4F", bad: "#B3261E", muted: "#5B6B7D", grey: "#9AA9B8" };
+var reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+var SPEED = 1;
+document.getElementById("speed").addEventListener("change", function (e) { SPEED = parseFloat(e.target.value) || 1; });
+
+function $(id) { return document.getElementById(id); }
+function el(tag, attrs, parent) {
+  var n = document.createElementNS(NS, tag);
+  for (var k in attrs) { if (k === "text") n.textContent = attrs[k]; else n.setAttribute(k, attrs[k]); }
+  if (parent) parent.appendChild(n);
+  return n;
+}
+function wait(ms) { return new Promise(function (r) { setTimeout(r, reduced ? 30 : ms / SPEED); }); }
+function envelope(layer, color) {
+  var g = el("g", {}, layer);
+  el("rect", { x: -11, y: -8, width: 22, height: 16, rx: 2, fill: color || C.yellow, stroke: C.navy, "stroke-width": 2 }, g);
+  el("polyline", { points: "-11,-8 0,1 11,-8", fill: "none", stroke: C.navy, "stroke-width": 2 }, g);
+  return g;
+}
+function travel(layer, pts, color) {
+  return new Promise(function (resolve) {
+    var g = envelope(layer, color);
+    var segs = [], total = 0;
+    for (var i = 1; i < pts.length; i++) {
+      var dx = pts[i][0] - pts[i - 1][0], dy = pts[i][1] - pts[i - 1][1];
+      var len = Math.sqrt(dx * dx + dy * dy); segs.push(len); total += len;
+    }
+    var dur = reduced ? 1 : total / (0.22 * SPEED);
+    var t0 = null;
+    function pos(d) {
+      var acc = 0;
+      for (var i = 0; i < segs.length; i++) {
+        if (d <= acc + segs[i] || i === segs.length - 1) {
+          var f = segs[i] ? Math.min(1, (d - acc) / segs[i]) : 1;
+          return [pts[i][0] + (pts[i + 1][0] - pts[i][0]) * f, pts[i][1] + (pts[i + 1][1] - pts[i][1]) * f];
+        }
+        acc += segs[i];
+      }
+      return pts[pts.length - 1];
+    }
+    function step(ts) {
+      if (t0 === null) t0 = ts;
+      var p = Math.min(1, (ts - t0) / dur);
+      var xy = pos(p * total);
+      g.setAttribute("transform", "translate(" + xy[0] + "," + xy[1] + ")");
+      if (p < 1) requestAnimationFrame(step); else { g.remove(); resolve(); }
+    }
+    g.setAttribute("transform", "translate(" + pts[0][0] + "," + pts[0][1] + ")");
+    requestAnimationFrame(step);
+  });
+}
+function badge(layer, x, y, text, kind) {
+  var g = el("g", { transform: "translate(" + x + "," + y + ")" }, layer);
+  var w = text.length * 7.6 + 18;
+  el("rect", { x: -w / 2, y: -13, width: w, height: 26, rx: 13, fill: kind === "ok" ? "#E3F2E8" : kind === "bad" ? "#FBE9E7" : "#EEF2F6", stroke: kind === "ok" ? C.ok : kind === "bad" ? C.bad : C.grey, "stroke-width": 1.5 }, g);
+  el("text", { x: 0, y: 5, "text-anchor": "middle", "font-size": 14, "font-weight": 700, fill: kind === "ok" ? C.ok : kind === "bad" ? C.bad : C.muted, text: text }, g);
+  return g;
+}
+function pcNode(layer, x, y, big, small, opts) {
+  opts = opts || {};
+  var g = el("g", { transform: "translate(" + x + "," + y + ")" }, layer);
+  var w = opts.w || 76, h = opts.h || 52;
+  var r = el("rect", { x: -w / 2, y: -h / 2, width: w, height: h, rx: 8, fill: "#fff", stroke: C.navy, "stroke-width": 2 }, g);
+  el("text", { x: 0, y: small ? -2 : 7, "text-anchor": "middle", "font-size": opts.fs || 22, "font-weight": 700, fill: C.navy, text: big }, g);
+  if (small) el("text", { x: 0, y: 16, "text-anchor": "middle", "font-size": 12, fill: C.muted, text: small }, g);
+  g._rect = r;
+  return g;
+}
+function addLog(id, lines, clear) {
+  var ol = $(id);
+  if (clear) ol.innerHTML = "";
+  lines.forEach(function (t) { var li = document.createElement("li"); li.textContent = t; li.className = "new"; ol.appendChild(li); });
+}
+
+/* ---------- Tabs ---------- */
+var tabs = Array.prototype.slice.call(document.querySelectorAll(".tab"));
+function show(view) {
+  var ok = tabs.some(function (t) { return t.dataset.view === view; });
+  if (!ok) view = "hub-switch";
+  tabs.forEach(function (t) { t.setAttribute("aria-selected", t.dataset.view === view ? "true" : "false"); });
+  document.querySelectorAll("section.view").forEach(function (s) { s.classList.toggle("active", s.id === "view-" + view); });
+}
+tabs.forEach(function (t) { t.addEventListener("click", function () { show(t.dataset.view); try { history.replaceState(null, "", "#" + t.dataset.view); } catch (e) { location.hash = t.dataset.view; } }); });
+window.addEventListener("hashchange", function () { show(location.hash.slice(1)); });
+show(location.hash.slice(1));
+
+/* =========================================================
+   1. HUB O SWITCH
+   ========================================================= */
+var S1 = { mode: "switch", cam: {}, busy: false, wasted: 0 };
+var CENTER = [300, 210];
+var PCS = [
+  { id: "A", port: 1, x: 110, y: 80, mac: "00:1A", pp: [252, 186] },
+  { id: "B", port: 2, x: 490, y: 80, mac: "00:1B", pp: [348, 186] },
+  { id: "C", port: 3, x: 110, y: 340, mac: "00:1C", pp: [252, 234] },
+  { id: "D", port: 4, x: 490, y: 340, mac: "00:1D", pp: [348, 234] }
+];
+function pcById(id) { return PCS.filter(function (p) { return p.id === id; })[0]; }
+function pcByPort(n) { return PCS.filter(function (p) { return p.port === n; })[0]; }
+var L1 = {};
+function drawSim1() {
+  var svg = $("sim1"); svg.innerHTML = "";
+  L1.links = el("g", {}, svg); L1.dev = el("g", {}, svg); L1.badges = el("g", {}, svg); L1.dots = el("g", {}, svg);
+  PCS.forEach(function (p) {
+    el("line", { x1: p.x, y1: p.y, x2: p.pp[0], y2: p.pp[1], stroke: C.grey, "stroke-width": 4 }, L1.links);
+    pcNode(L1.dev, p.x, p.y, p.id, "MAC …" + p.mac);
+  });
+  var isHub = S1.mode === "hub";
+  el("rect", { x: 232, y: 178, width: 136, height: 64, rx: 12, fill: isHub ? C.blue : C.navy }, L1.dev);
+  el("text", { x: 300, y: 216, "text-anchor": "middle", "font-size": 20, "font-weight": 700, fill: "#fff", text: isHub ? "HUB" : "SWITCH" }, L1.dev);
+  PCS.forEach(function (p) {
+    el("circle", { cx: p.pp[0], cy: p.pp[1], r: 11, fill: C.yellow, stroke: C.navy, "stroke-width": 2 }, L1.dev);
+    el("text", { x: p.pp[0], y: p.pp[1] + 5, "text-anchor": "middle", "font-size": 13, "font-weight": 700, fill: C.navy, text: p.port }, L1.dev);
+  });
+  el("text", { x: 300, y: 270, "text-anchor": "middle", "font-size": 13, fill: C.muted, text: "Els números grocs són els ports" }, L1.dev);
+}
+function renderCam() {
+  var box = $("cam1");
+  if (S1.mode === "hub") { box.innerHTML = '<p class="empty" style="margin:0">El hub no té taula. No aprèn res: sempre copia la trama a tots els ports.</p>'; return; }
+  var keys = Object.keys(S1.cam);
+  if (!keys.length) { box.innerHTML = '<p class="empty" style="margin:0">La taula és buida: el switch encara no ha après res.</p>'; return; }
+  keys.sort(function (a, b) { return S1.cam[a] - S1.cam[b]; });
+  var h = '<table class="t"><tr><th>Port</th><th>Adreça MAC</th><th>Equip</th></tr>';
+  keys.forEach(function (m) { var p = pcByPort(S1.cam[m]); h += "<tr><td>" + S1.cam[m] + "</td><td>…" + m + "</td><td>" + (p ? p.id : "") + "</td></tr>"; });
+  box.innerHTML = h + "</table>";
+}
+function setMode1(m) {
+  S1.mode = m; S1.cam = {}; S1.wasted = 0; $("wasted").textContent = "0";
+  $("m-hub").setAttribute("aria-pressed", m === "hub"); $("m-switch").setAttribute("aria-pressed", m === "switch");
+  drawSim1(); renderCam();
+  addLog("log1", [m === "hub" ? "Ara l'aparell central és un hub." : "Ara l'aparell central és un switch, amb la taula buida."], true);
+}
+function plan1(src, dst) {
+  var s = pcById(src), out = [], logs = [], learn = null;
+  var others = PCS.filter(function (p) { return p.id !== src; }).map(function (p) { return p.port; });
+  var dstTxt = dst === "ALL" ? "tots els equips (difusió)" : dst;
+  logs.push(src + " envia una trama per a " + dstTxt + ". Surt pel seu cable i entra al port " + s.port + ".");
+  if (S1.mode === "hub") {
+    out = others;
+    logs.push("El hub no llegeix adreces. Copia la trama a tots els altres ports: " + others.join(", ") + ".");
+  } else {
+    if (S1.cam[s.mac] === s.port) logs.push("El switch mira qui l'envia (MAC d'origen …" + s.mac + "). Ja sabia que " + src + " és al port " + s.port + ".");
+    else { learn = [s.mac, s.port]; logs.push("El switch mira qui l'envia (MAC d'origen …" + s.mac + ") i apunta a la taula: " + src + " és al port " + s.port + "."); }
+    if (dst === "ALL") {
+      out = others;
+      logs.push("És una difusió (per a tothom): el switch l'envia per tots els ports menys per on ha entrat: " + others.join(", ") + ".");
+    } else {
+      var d = pcById(dst);
+      if (S1.cam[d.mac]) { out = [S1.cam[d.mac]]; logs.push("Després mira a qui va (MAC de destí …" + d.mac + "). Ja sap que " + dst + " és al port " + S1.cam[d.mac] + ": l'envia només per aquest port."); }
+      else { out = others; logs.push("Després mira a qui va (MAC de destí …" + d.mac + "). No sap on és " + dst + ": l'envia per tots els ports menys el " + s.port + " (inunda)."); }
+    }
+  }
+  return { out: out, logs: logs, learn: learn };
+}
+function run1(src, dst, plan) {
+  S1.busy = true; setBusy1(true);
+  L1.badges.innerHTML = "";
+  addLog("log1", plan.logs, true);
+  if (plan.learn) { S1.cam[plan.learn[0]] = plan.learn[1]; renderCam(); }
+  var s = pcById(src);
+  return travel(L1.dots, [[s.x, s.y], s.pp, CENTER]).then(function () {
+    return Promise.all(plan.out.map(function (port) { var p = pcByPort(port); return travel(L1.dots, [CENTER, p.pp, [p.x, p.y]]); }));
+  }).then(function () {
+    var extra = [];
+    plan.out.forEach(function (port) {
+      var p = pcByPort(port);
+      var by = p.y < 200 ? p.y - 44 : p.y + 44;
+      if (dst === "ALL" || p.id === dst) badge(L1.badges, p.x, by, "Rebut: és per a mi", "ok");
+      else { badge(L1.badges, p.x, by, "Descartat: no és per a mi", "bad"); S1.wasted++; }
+    });
+    PCS.forEach(function (p) { if (p.id !== src && plan.out.indexOf(p.port) < 0) badge(L1.badges, p.x, p.y < 200 ? p.y - 44 : p.y + 44, "No li arriba res", "grey"); });
+    $("wasted").textContent = S1.wasted;
+    var losers = plan.out.filter(function (port) { return dst !== "ALL" && pcByPort(port).id !== dst; }).map(function (port) { return pcByPort(port).id; });
+    if (dst === "ALL") extra.push("Tots els equips la reben i se la queden, perquè anava per a tothom.");
+    else if (losers.length) extra.push(dst + " se la queda. " + losers.join(" i ") + " la reben, miren l'adreça i la llencen: no era per a ells.");
+    else extra.push("Només " + dst + " la rep. Ningú més s'assabenta del missatge.");
+    addLog("log1", extra);
+    S1.busy = false; setBusy1(false);
+  });
+}
+function setBusy1(b) {
+  ["send1", "predgo", "reset1", "m-hub", "m-switch"].forEach(function (id) { $(id).disabled = b; });
+  document.querySelectorAll("[data-seq]").forEach(function (x) { x.disabled = b; });
+}
+var pending1 = null;
+function request1(src, dst) {
+  $("msg1").textContent = "";
+  if (S1.busy) return;
+  if (src === dst) { $("msg1").textContent = "Tria un destí diferent de l'origen."; return; }
+  var plan = plan1(src, dst);
+  if ($("pred1").checked) {
+    pending1 = { src: src, dst: dst, plan: plan };
+    var pick = $("portpick"); pick.innerHTML = "";
+    PCS.forEach(function (p) {
+      var b = document.createElement("button");
+      b.type = "button"; b.textContent = "Port " + p.port + " (" + p.id + ")"; b.setAttribute("aria-pressed", "false");
+      if (p.id === src) { b.disabled = true; b.title = "És el port per on entra"; }
+      b.addEventListener("click", function () { b.setAttribute("aria-pressed", b.getAttribute("aria-pressed") === "true" ? "false" : "true"); });
+      b.dataset.port = p.port; pick.appendChild(b);
+    });
+    $("predfb").textContent = ""; $("predfb").className = "feedback";
+    $("predbox").classList.remove("hidden");
+    $("predgo").disabled = false;
+    return;
+  }
+  run1(src, dst, plan);
+}
+$("predgo").addEventListener("click", function () {
+  if (!pending1) return;
+  var chosen = Array.prototype.slice.call($("portpick").querySelectorAll('button[aria-pressed="true"]')).map(function (b) { return +b.dataset.port; }).sort();
+  var real = pending1.plan.out.slice().sort();
+  var fb = $("predfb");
+  if (chosen.join() === real.join()) { fb.textContent = "Correcte! Surt pels ports " + real.join(", ") + "."; fb.className = "feedback ok"; }
+  else { fb.textContent = "No del tot. Surt pels ports " + real.join(", ") + ". Mira el pas a pas per veure per què."; fb.className = "feedback bad"; }
+  var p = pending1; pending1 = null;
+  $("predgo").disabled = true;
+  run1(p.src, p.dst, p.plan);
+});
+$("send1").addEventListener("click", function () { request1($("src1").value, $("dst1").value); });
+document.querySelectorAll("[data-seq]").forEach(function (b) {
+  b.addEventListener("click", function () { var v = b.dataset.seq.split(","); $("src1").value = v[0]; $("dst1").value = v[1]; request1(v[0], v[1]); });
+});
+$("m-hub").addEventListener("click", function () { setMode1("hub"); });
+$("m-switch").addEventListener("click", function () { setMode1("switch"); });
+$("reset1").addEventListener("click", function () { setMode1(S1.mode); });
+$("pred1").addEventListener("change", function () { if (!$("pred1").checked) { $("predbox").classList.add("hidden"); pending1 = null; } });
+drawSim1(); renderCam();
+
+/* =========================================================
+   2. COL·LISIONS
+   ========================================================= */
+var S2 = { mode: "hub", busy: false, count: 0 };
+var C2 = [300, 170];
+var P2 = { A: { x: 90, y: 80, pp: [240, 152] }, B: { x: 90, y: 260, pp: [240, 188] }, C: { x: 510, y: 170, pp: [360, 170] } };
+var L2 = {};
+function drawSim2() {
+  var svg = $("sim2"); svg.innerHTML = "";
+  L2.links = el("g", {}, svg); L2.dev = el("g", {}, svg); L2.fx = el("g", {}, svg); L2.badges = el("g", {}, svg); L2.dots = el("g", {}, svg);
+  Object.keys(P2).forEach(function (k) {
+    var p = P2[k];
+    el("line", { x1: p.x, y1: p.y, x2: p.pp[0], y2: p.pp[1], stroke: C.grey, "stroke-width": 4 }, L2.links);
+    pcNode(L2.dev, p.x, p.y, k, null);
+  });
+  var isHub = S2.mode === "hub";
+  el("rect", { x: 236, y: 140, width: 128, height: 60, rx: 12, fill: isHub ? C.blue : C.navy }, L2.dev);
+  el("text", { x: 300, y: 177, "text-anchor": "middle", "font-size": 20, "font-weight": 700, fill: "#fff", text: isHub ? "HUB" : "SWITCH" }, L2.dev);
+  el("text", { x: 300, y: 325, "text-anchor": "middle", "font-size": 14, fill: C.muted, text: isHub ? "Hub: tots comparteixen el mateix camí (half-dúplex)" : "Switch: cada equip té el seu propi camí (full-dúplex)" }, L2.dev);
+}
+function burst(x, y, layer) {
+  layer = layer || L2.fx;
+  return new Promise(function (resolve) {
+    var c = el("circle", { cx: x, cy: y, r: 10, fill: C.bad, opacity: .8 }, layer);
+    var t = el("text", { x: x, y: y - 48, "text-anchor": "middle", "font-size": 22, "font-weight": 700, fill: C.bad, text: "COL·LISIÓ!" }, layer);
+    var dur = reduced ? 1 : 900 / SPEED, t0 = null;
+    function step(ts) {
+      if (t0 === null) t0 = ts;
+      var p = Math.min(1, (ts - t0) / dur);
+      c.setAttribute("r", 10 + 40 * p); c.setAttribute("opacity", (0.8 * (1 - p)).toFixed(2));
+      if (p < 1) requestAnimationFrame(step); else { c.remove(); setTimeout(function () { t.remove(); }, reduced ? 0 : 900 / SPEED); resolve(); }
+    }
+    requestAnimationFrame(step);
+  });
+}
+function countdown(k, n) {
+  var p = P2[k];
+  var g = badge(L2.badges, p.x, p.y + 46, "Espera " + n, "grey");
+  var chain = Promise.resolve();
+  for (var i = n - 1; i >= 0; i--) {
+    (function (v) { chain = chain.then(function () { return wait(600); }).then(function () { g.remove(); g = badge(L2.badges, p.x, p.y + 46, v ? "Espera " + v : "Envia!", v ? "grey" : "ok"); }); })(i);
+  }
+  return chain.then(function () { return g; });
+}
+function sendVia(k, targets) {
+  var p = P2[k];
+  return travel(L2.dots, [[p.x, p.y], p.pp, C2]).then(function () {
+    return Promise.all(targets.map(function (t) { var q = P2[t]; return travel(L2.dots, [C2, q.pp, [q.x, q.y]]); }));
+  });
+}
+function setBusy2(b) { ["go2", "c-hub", "c-switch"].forEach(function (id) { $(id).disabled = b; }); }
+$("go2").addEventListener("click", function () {
+  if (S2.busy) return;
+  S2.busy = true; setBusy2(true); L2.badges.innerHTML = "";
+  var a = P2.A, b = P2.B;
+  if (S2.mode === "hub") {
+    var wa = 1 + Math.floor(Math.random() * 3), wb;
+    do { wb = 1 + Math.floor(Math.random() * 4); } while (wb === wa);
+    addLog("log2", ["A i B escolten el cable: està lliure. Tots dos comencen a enviar alhora."], true);
+    Promise.all([travel(L2.dots, [[a.x, a.y], a.pp, C2]), travel(L2.dots, [[b.x, b.y], b.pp, C2])]).then(function () {
+      S2.count++; $("ccount").textContent = S2.count;
+      addLog("log2", ["Les dues trames es troben dins del hub i es barregen: col·lisió. Totes dues es perden.", "A i B detecten el xoc i deixen d'enviar."]);
+      return burst(C2[0], C2[1]);
+    }).then(function () {
+      addLog("log2", ["Cadascú espera un temps a l'atzar: A espera " + wa + " i B espera " + wb + ". Com que són temps diferents, no tornaran a xocar."]);
+      return Promise.all([countdown("A", wa), countdown("B", wb)]);
+    }).then(function () { return wait(200); }).then(function () {
+      L2.badges.innerHTML = "";
+      var first = wa < wb ? "A" : "B", second = first === "A" ? "B" : "A";
+      addLog("log2", [first + " acaba d'esperar primer, escolta (lliure) i envia. El hub la copia a tots: C se la queda i " + second + " la llença."]);
+      return sendVia(first, [second, "C"]).then(function () {
+        addLog("log2", [second + " escolta: ara el cable és lliure. Envia. Arriba bé a C."]);
+        return sendVia(second, [first, "C"]);
+      });
+    }).then(function () {
+      badge(L2.badges, P2.C.x, P2.C.y + 46, "2 trames rebudes", "ok");
+      addLog("log2", ["Al final arriben totes dues, però s'ha perdut temps. Amb molts equips en un hub, això passa contínuament."]);
+      S2.busy = false; setBusy2(false);
+    });
+  } else {
+    addLog("log2", ["A i B envien alhora. Cada un té el seu propi cable fins al switch: les trames no es troben pel camí."], true);
+    Promise.all([travel(L2.dots, [[a.x, a.y], a.pp, C2]), travel(L2.dots, [[b.x, b.y], b.pp, C2])]).then(function () {
+      addLog("log2", ["Totes dues van al port de C. El switch en guarda una a la memòria (en cua) i les envia una darrere l'altra."]);
+      return travel(L2.dots, [C2, P2.C.pp, [P2.C.x, P2.C.y]]);
+    }).then(function () { return travel(L2.dots, [C2, P2.C.pp, [P2.C.x, P2.C.y]]); }).then(function () {
+      badge(L2.badges, P2.C.x, P2.C.y + 46, "2 trames rebudes", "ok");
+      addLog("log2", ["Cap col·lisió i cap espera. Per això el switch va substituir el hub."]);
+      S2.busy = false; setBusy2(false);
+    });
+  }
+});
+function setMode2(m) {
+  S2.mode = m; S2.count = 0; $("ccount").textContent = "0";
+  $("c-hub").setAttribute("aria-pressed", m === "hub"); $("c-switch").setAttribute("aria-pressed", m === "switch");
+  drawSim2(); addLog("log2", ["Ara l'aparell central és un " + (m === "hub" ? "hub" : "switch") + ". Prem el botó per provar-ho."], true);
+}
+$("c-hub").addEventListener("click", function () { setMode2("hub"); });
+$("c-switch").addEventListener("click", function () { setMode2("switch"); });
+drawSim2();
+
+/* =========================================================
+   3. ROUTER
+   ========================================================= */
+var N3 = {
+  PC1: { x: 80, y: 90 }, PC2: { x: 80, y: 260 }, S1: { x: 230, y: 175 }, R: { x: 380, y: 175 }, S2: { x: 530, y: 175 }, PC3: { x: 675, y: 175 }
+};
+var L3 = {}, busy3 = false;
+function drawSim3() {
+  var svg = $("sim3"); svg.innerHTML = "";
+  var bg = el("g", {}, svg);
+  el("rect", { x: 10, y: 10, width: 350, height: 320, rx: 16, fill: C.ice }, bg);
+  el("rect", { x: 400, y: 10, width: 350, height: 320, rx: 16, fill: "#FFF4CC" }, bg);
+  el("text", { x: 26, y: 36, "font-size": 15, "font-weight": 700, fill: C.navy, text: "Xarxa 192.168.1.x" }, bg);
+  el("text", { x: 734, y: 36, "text-anchor": "end", "font-size": 15, "font-weight": 700, fill: C.navy, text: "Xarxa 192.168.2.x" }, bg);
+  L3.links = el("g", {}, svg); L3.dev = el("g", {}, svg); L3.badges = el("g", {}, svg); L3.dots = el("g", {}, svg);
+  [["PC1", "S1"], ["PC2", "S1"], ["S1", "R"], ["R", "S2"], ["S2", "PC3"]].forEach(function (l) {
+    el("line", { x1: N3[l[0]].x, y1: N3[l[0]].y, x2: N3[l[1]].x, y2: N3[l[1]].y, stroke: C.grey, "stroke-width": 4 }, L3.links);
+  });
+  pcNode(L3.dev, N3.PC1.x, N3.PC1.y, "PC1", "192.168.1.10", { w: 110, fs: 18 });
+  pcNode(L3.dev, N3.PC2.x, N3.PC2.y, "PC2", "192.168.1.11", { w: 110, fs: 18 });
+  pcNode(L3.dev, N3.PC3.x, N3.PC3.y, "PC3", "192.168.2.10", { w: 110, fs: 18 });
+  [["S1"], ["S2"]].forEach(function (s) {
+    var n = N3[s[0]];
+    el("rect", { x: n.x - 38, y: n.y - 22, width: 76, height: 44, rx: 10, fill: C.navy }, L3.dev);
+    el("text", { x: n.x, y: n.y + 6, "text-anchor": "middle", "font-size": 15, "font-weight": 700, fill: "#fff", text: "SWITCH" }, L3.dev);
+  });
+  el("circle", { cx: N3.R.x, cy: N3.R.y, r: 34, fill: C.yellow, stroke: C.navy, "stroke-width": 2 }, L3.dev);
+  el("text", { x: N3.R.x, y: N3.R.y + 6, "text-anchor": "middle", "font-size": 15, "font-weight": 700, fill: C.navy, text: "ROUTER" }, L3.dev);
+  el("text", { x: N3.R.x - 40, y: N3.R.y + 58, "text-anchor": "end", "font-size": 13, fill: C.navy, text: "192.168.1.1" }, L3.dev);
+  el("text", { x: N3.R.x + 40, y: N3.R.y + 58, "font-size": 13, fill: C.navy, text: "192.168.2.1" }, L3.dev);
+}
+function xy(k) { return [N3[k].x, N3[k].y]; }
+function setBusy3(b) { busy3 = b; ["r-same", "r-other", "r-bcast", "gw"].forEach(function (id) { $(id).disabled = b; }); }
+$("gw").addEventListener("change", function () { $("gwval").textContent = $("gw").checked ? "192.168.1.1" : "(cap)"; });
+$("r-same").addEventListener("click", function () {
+  if (busy3) return; setBusy3(true); L3.badges.innerHTML = "";
+  addLog("log3", ["PC1 vol enviar a PC2 (192.168.1.11).", "PC1 compara: 192.168.1.11 és de la seva xarxa (192.168.1.x). L'envia directament, pel switch."], true);
+  travel(L3.dots, [xy("PC1"), xy("S1"), xy("PC2")]).then(function () {
+    badge(L3.badges, N3.PC2.x, N3.PC2.y + 46, "Rebut", "ok");
+    addLog("log3", ["Arriba a PC2. El router no hi ha intervingut: no calia."]);
+    setBusy3(false);
+  });
+});
+$("r-other").addEventListener("click", function () {
+  if (busy3) return; setBusy3(true); L3.badges.innerHTML = "";
+  addLog("log3", ["PC1 vol enviar a PC3 (192.168.2.10).", "PC1 compara: 192.168.2.10 NO és de la seva xarxa (192.168.1.x)."], true);
+  if (!$("gw").checked) {
+    wait(500).then(function () {
+      badge(L3.badges, N3.PC1.x, N3.PC1.y + 48, "No sap per on sortir", "bad");
+      addLog("log3", ["L'hauria d'enviar a la porta d'enllaç, però PC1 no en té cap configurada.", "No sap a qui donar el paquet: no surt de PC1. Pot parlar amb PC2, però no amb cap altra xarxa (tampoc amb Internet)."]);
+      setBusy3(false);
+    });
+    return;
+  }
+  addLog("log3", ["L'envia a la porta d'enllaç: el router (192.168.1.1)."]);
+  travel(L3.dots, [xy("PC1"), xy("S1"), xy("R")]).then(function () {
+    addLog("log3", ["El router mira la IP de destí: 192.168.2.10 és de la xarxa 192.168.2.x. La treu per la seva connexió d'aquesta xarxa."]);
+    return wait(500);
+  }).then(function () { return travel(L3.dots, [xy("R"), xy("S2"), xy("PC3")]); }).then(function () {
+    badge(L3.badges, N3.PC3.x, N3.PC3.y + 46, "Rebut", "ok");
+    addLog("log3", ["Arriba a PC3. Ha passat d'una xarxa a l'altra gràcies al router."]);
+    setBusy3(false);
+  });
+});
+$("r-bcast").addEventListener("click", function () {
+  if (busy3) return; setBusy3(true); L3.badges.innerHTML = "";
+  addLog("log3", ["PC1 envia una difusió: un missatge per a tothom (com la pregunta ARP)."], true);
+  travel(L3.dots, [xy("PC1"), xy("S1")]).then(function () {
+    addLog("log3", ["El switch l'envia per tots els ports: arriba a PC2 i al router."]);
+    return Promise.all([travel(L3.dots, [xy("S1"), xy("PC2")]), travel(L3.dots, [xy("S1"), [N3.R.x - 34, N3.R.y]])]);
+  }).then(function () {
+    badge(L3.badges, N3.PC2.x, N3.PC2.y + 46, "Rebut", "ok");
+    badge(L3.badges, N3.R.x, N3.R.y - 52, "Aturada: el router no passa difusions", "bad");
+    badge(L3.badges, N3.PC3.x, N3.PC3.y + 46, "No li arriba", "grey");
+    addLog("log3", ["El router no passa difusions a l'altra xarxa. PC3 no la rep.", "Per això cada xarxa del router és un domini de difusió diferent."]);
+    setBusy3(false);
+  });
+});
+drawSim3();
+
+/* =========================================================
+   4. DOMINIS
+   ========================================================= */
+function ring(cx, cy, r, n, a0, a1) {
+  var out = [];
+  for (var i = 0; i < n; i++) { var a = (a0 + (a1 - a0) * (n === 1 ? 0.5 : i / (n - 1))) * Math.PI / 180; out.push([Math.round(cx + r * Math.cos(a)), Math.round(cy + r * Math.sin(a))]); }
+  return out;
+}
+function build(def) {
+  // def: {nodes:[{id,type,x,y,bd}], links:[[a,b,dom]], regions:[[x,y,w,h]]}
+  return def;
+}
+var SCEN = [];
+(function () {
+  // 1. Hub amb 6 PC
+  var n = [{ id: "h", type: "hub", x: 320, y: 160, bd: 0 }], l = [];
+  ring(320, 160, 120, 6, -90, 210).forEach(function (p, i) { n.push({ id: "p" + i, type: "pc", x: p[0], y: p[1], bd: 0 }); l.push(["h", "p" + i, 0]); });
+  SCEN.push({ name: "Hub amb 6 PC", desc: "Un hub amb sis ordinadors connectats.", nodes: n, links: l, regions: [[20, 10, 600, 290]],
+    expl: "Col·lisió: 1, perquè el hub no separa res i tots comparteixen el mateix camí. Difusió: 1, perquè no hi ha router." });
+  // 2. Switch amb 6 PC
+  n = [{ id: "s", type: "sw", x: 320, y: 160, bd: 0 }]; l = [];
+  ring(320, 160, 120, 6, -90, 210).forEach(function (p, i) { n.push({ id: "p" + i, type: "pc", x: p[0], y: p[1], bd: 0 }); l.push(["s", "p" + i, i]); });
+  SCEN.push({ name: "Switch amb 6 PC", desc: "Un switch amb sis ordinadors connectats.", nodes: n, links: l, regions: [[20, 10, 600, 290]],
+    expl: "Col·lisió: 6, un per cada cable del switch. Difusió: 1, perquè el switch deixa passar les difusions i no hi ha router." });
+  // 3. Switch amb 4 PC + hub amb 3 PC
+  n = [{ id: "s", type: "sw", x: 230, y: 160, bd: 0 }, { id: "h", type: "hub", x: 440, y: 160, bd: 0 }]; l = [["s", "h", 4]];
+  ring(230, 160, 115, 4, 100, 260).forEach(function (p, i) { n.push({ id: "a" + i, type: "pc", x: p[0], y: p[1], bd: 0 }); l.push(["s", "a" + i, i]); });
+  ring(440, 160, 110, 3, -60, 60).forEach(function (p, i) { n.push({ id: "b" + i, type: "pc", x: p[0], y: p[1], bd: 0 }); l.push(["h", "b" + i, 4]); });
+  SCEN.push({ name: "Switch + hub", desc: "Un switch amb quatre ordinadors. A un altre port del switch hi ha un hub amb tres ordinadors més.", nodes: n, links: l, regions: [[20, 10, 600, 290]],
+    expl: "Col·lisió: 5. Quatre cables del switch amb un PC cadascun, més el cable del switch al hub. El hub i els seus tres PC són tots al mateix domini. Difusió: 1, perquè no hi ha router." });
+  // 4. Diapositiva 26
+  n = [{ id: "r", type: "router", x: 320, y: 160, bd: -1 }, { id: "s", type: "sw", x: 180, y: 160, bd: 0 }, { id: "h", type: "hub", x: 460, y: 160, bd: 1 }];
+  l = [["s", "r", 3], ["r", "h", 4]];
+  ring(180, 160, 105, 3, 120, 240).forEach(function (p, i) { n.push({ id: "a" + i, type: "pc", x: p[0], y: p[1], bd: 0 }); l.push(["s", "a" + i, i]); });
+  ring(460, 160, 100, 2, -40, 40).forEach(function (p, i) { n.push({ id: "b" + i, type: "pc", x: p[0], y: p[1], bd: 1 }); l.push(["h", "b" + i, 4]); });
+  SCEN.push({ name: "Diapositiva 26", desc: "Un router. A l'esquerra, un switch amb tres PC. A la dreta, un hub amb dos PC.", nodes: n, links: l, regions: [[20, 10, 290, 290], [330, 10, 290, 290]],
+    expl: "Col·lisió: 5. Al switch hi ha 4 cables (tres PC i el cable fins al router). A la dreta, el hub, els dos PC i el cable fins al router són un sol domini. Difusió: 2, una a cada costat del router." });
+  // 5. Router amb dos switches de 5 PC
+  n = [{ id: "r", type: "router", x: 320, y: 55, bd: -1 }, { id: "s1", type: "sw", x: 170, y: 150, bd: 0 }, { id: "s2", type: "sw", x: 470, y: 150, bd: 1 }];
+  l = [["s1", "r", 5], ["s2", "r", 11]];
+  ring(170, 150, 110, 5, 110, 250).forEach(function (p, i) { n.push({ id: "a" + i, type: "pc", x: p[0] + 10, y: Math.min(290, p[1] + 40), bd: 0 }); l.push(["s1", "a" + i, i]); });
+  ring(470, 150, 110, 5, -70, 70).forEach(function (p, i) { n.push({ id: "b" + i, type: "pc", x: p[0] - 10, y: Math.min(290, p[1] + 40), bd: 1 }); l.push(["s2", "b" + i, 6 + i]); });
+  SCEN.push({ name: "Router + 2 switches", desc: "Un router amb dos switches. Cada switch té cinc PC.", nodes: n, links: l, regions: [[20, 90, 290, 210], [330, 90, 290, 210]],
+    expl: "Col·lisió: 12. Cada switch té 5 cables amb PC i 1 cable fins al router: 6 + 6. Difusió: 2, una per cada connexió del router." });
+  SCEN.forEach(function (s) {
+    var doms = {}; s.links.forEach(function (x) { doms[x[2]] = 1; }); s.col = Object.keys(doms).length;
+    var bds = {}; s.nodes.forEach(function (x) { if (x.bd >= 0) bds[x.bd] = 1; }); s.bd = Object.keys(bds).length;
+  });
+})();
+var S4 = { i: 3, col: false, bd: false };
+var DOMC = ["#1F5A8A", "#C2410C", "#2E7D4F", "#7C3AED", "#0E7490", "#BE185D", "#A16207", "#4D7C0F", "#1D4ED8", "#9F1239", "#047857", "#B45309"];
+var BDC = ["rgba(31,90,138,0.13)", "rgba(244,196,48,0.25)"];
+function drawSim4() {
+  var s = SCEN[S4.i], svg = $("sim4"); svg.innerHTML = "";
+  var rg = el("g", {}, svg), lg = el("g", {}, svg), ng = el("g", {}, svg);
+  if (S4.bd) s.regions.forEach(function (r, i) { el("rect", { x: r[0], y: r[1], width: r[2], height: r[3], rx: 16, fill: BDC[i % 2], stroke: i ? "#E8C34A" : C.blue, "stroke-dasharray": "6 5", "stroke-width": 1.5 }, rg); el("text", { x: r[0] + 12, y: r[1] + 22, "font-size": 13, "font-weight": 700, fill: C.navy, text: "Domini de difusió " + (i + 1) }, rg); });
+  var byId = {}; s.nodes.forEach(function (n) { byId[n.id] = n; });
+  var order = {}, k = 0; s.links.forEach(function (x) { if (!(x[2] in order)) order[x[2]] = k++; });
+  s.links.forEach(function (x) {
+    var a = byId[x[0]], b = byId[x[1]];
+    el("line", { x1: a.x, y1: a.y, x2: b.x, y2: b.y, stroke: S4.col ? DOMC[order[x[2]] % DOMC.length] : C.grey, "stroke-width": S4.col ? 6 : 3.5, "stroke-linecap": "round" }, lg);
+  });
+  s.nodes.forEach(function (n) {
+    if (n.type === "pc") { el("rect", { x: n.x - 20, y: n.y - 14, width: 40, height: 28, rx: 5, fill: "#fff", stroke: C.navy, "stroke-width": 2 }, ng); el("text", { x: n.x, y: n.y + 5, "text-anchor": "middle", "font-size": 12, "font-weight": 700, fill: C.navy, text: "PC" }, ng); }
+    else if (n.type === "router") { el("circle", { cx: n.x, cy: n.y, r: 26, fill: C.yellow, stroke: C.navy, "stroke-width": 2 }, ng); el("text", { x: n.x, y: n.y + 5, "text-anchor": "middle", "font-size": 13, "font-weight": 700, fill: C.navy, text: "ROUTER" }, ng); }
+    else { el("rect", { x: n.x - 36, y: n.y - 18, width: 72, height: 36, rx: 9, fill: n.type === "hub" ? C.blue : C.navy }, ng); el("text", { x: n.x, y: n.y + 5, "text-anchor": "middle", "font-size": 13, "font-weight": 700, fill: "#fff", text: n.type === "hub" ? "HUB" : "SWITCH" }, ng); }
+  });
+  if (S4.col) el("text", { x: 620, y: 316, "text-anchor": "end", "font-size": 13, fill: C.muted, text: "Cada color és un domini de col·lisió (" + s.col + " en total)" }, svg);
+}
+function renderScen() {
+  var box = $("scen"); box.innerHTML = "";
+  SCEN.forEach(function (s, i) {
+    var b = document.createElement("button"); b.type = "button"; b.textContent = (i + 1) + ". " + s.name; b.setAttribute("aria-pressed", i === S4.i);
+    b.addEventListener("click", function () { S4.i = i; S4.col = false; S4.bd = false; syncScen(); });
+    box.appendChild(b);
+  });
+}
+function syncScen() {
+  var s = SCEN[S4.i];
+  Array.prototype.forEach.call($("scen").children, function (b, i) { b.setAttribute("aria-pressed", i === S4.i); });
+  $("scen-title").textContent = "Exercici " + (S4.i + 1) + ": " + s.name;
+  $("scen-desc").textContent = s.desc + " Quants dominis de cada tipus hi ha?";
+  $("ans-col").value = ""; $("ans-bd").value = ""; $("fb4").textContent = ""; $("fb4").className = "feedback";
+  $("expl4").classList.add("hidden"); $("expl4").textContent = s.expl;
+  $("showcol").setAttribute("aria-pressed", S4.col); $("showbd").setAttribute("aria-pressed", S4.bd);
+  $("showcol").textContent = S4.col ? "Amaga els dominis de col·lisió" : "Mostra els dominis de col·lisió";
+  $("showbd").textContent = S4.bd ? "Amaga els dominis de difusió" : "Mostra els dominis de difusió";
+  drawSim4();
+}
+$("check4").addEventListener("click", function () {
+  var s = SCEN[S4.i], c = $("ans-col").value, d = $("ans-bd").value, fb = $("fb4");
+  if (c === "" || d === "") { fb.textContent = "Escriu els dos números abans de comprovar."; fb.className = "feedback bad"; return; }
+  var okc = +c === s.col, okd = +d === s.bd;
+  if (okc && okd) { fb.textContent = "Tots dos correctes!"; fb.className = "feedback ok"; }
+  else { fb.textContent = (okc ? "Col·lisió: correcte. " : "Col·lisió: no. ") + (okd ? "Difusió: correcte." : "Difusió: no.") + " Prova els botons de sota l'esquema per veure-ho."; fb.className = "feedback bad"; }
+  $("expl4").classList.remove("hidden");
+});
+$("showcol").addEventListener("click", function () { S4.col = !S4.col; syncScen2(); });
+$("showbd").addEventListener("click", function () { S4.bd = !S4.bd; syncScen2(); });
+function syncScen2() {
+  $("showcol").setAttribute("aria-pressed", S4.col); $("showbd").setAttribute("aria-pressed", S4.bd);
+  $("showcol").textContent = S4.col ? "Amaga els dominis de col·lisió" : "Mostra els dominis de col·lisió";
+  $("showbd").textContent = S4.bd ? "Amaga els dominis de difusió" : "Mostra els dominis de difusió";
+  drawSim4();
+}
+renderScen(); syncScen();
+
+/* =========================================================
+   5. REPÀS
+   ========================================================= */
+var QCOLS = [
+  { h: "Capa OSI", opts: ["1", "2", "3", "1 i 2"] },
+  { h: "Què mira per decidir", opts: ["Res", "Adreça MAC", "Adreça IP", "Senyal de ràdio"] },
+  { h: "Separa dominis de col·lisió?", opts: ["Sí", "No"] },
+  { h: "Separa dominis de difusió?", opts: ["Sí", "No"] }
+];
+var QROWS = [
+  { d: "Repetidor", a: ["1", "Res", "No", "No"] },
+  { d: "Hub", a: ["1", "Res", "No", "No"] },
+  { d: "Punt d'accés", a: ["1 i 2", "Senyal de ràdio", "No", "No"] },
+  { d: "Switch", a: ["2", "Adreça MAC", "Sí", "No"] },
+  { d: "Router", a: ["3", "Adreça IP", "Sí", "Sí"] }
+];
+function buildQuiz() {
+  var t = $("quiz"), h = "<tr><th>Aparell</th>";
+  QCOLS.forEach(function (c) { h += "<th>" + c.h + "</th>"; });
+  h += "</tr>";
+  QROWS.forEach(function (r, i) {
+    h += "<tr><td><b>" + r.d + "</b></td>";
+    QCOLS.forEach(function (c, j) {
+      h += '<td id="qc-' + i + '-' + j + '"><select class="in" id="q-' + i + '-' + j + '" aria-label="' + r.d + ': ' + c.h + '"><option value="">Tria…</option>';
+      c.opts.forEach(function (o) { h += "<option>" + o + "</option>"; });
+      h += "</select></td>";
+    });
+    h += "</tr>";
+  });
+  t.innerHTML = h; $("qscore").textContent = "";
+}
+$("qcheck").addEventListener("click", function () {
+  var ok = 0, total = 0, blank = 0;
+  QROWS.forEach(function (r, i) { QCOLS.forEach(function (c, j) {
+    total++; var v = $("q-" + i + "-" + j).value, td = $("qc-" + i + "-" + j);
+    td.classList.remove("ok", "bad");
+    if (!v) { blank++; return; }
+    if (v === r.a[j]) { ok++; td.classList.add("ok"); } else td.classList.add("bad");
+  }); });
+  var s = $("qscore");
+  s.textContent = ok + " de " + total + " correctes" + (blank ? " (" + blank + " sense respondre)" : "") + ".";
+  s.className = "feedback " + (ok === total ? "ok" : "bad");
+});
+$("qshow").addEventListener("click", function () {
+  QROWS.forEach(function (r, i) { QCOLS.forEach(function (c, j) { $("q-" + i + "-" + j).value = r.a[j]; var td = $("qc-" + i + "-" + j); td.classList.remove("bad"); td.classList.add("ok"); }); });
+  $("qscore").textContent = "Aquesta és la solució. Fixa't sobretot en les dues últimes columnes."; $("qscore").className = "feedback ok";
+});
+$("qreset").addEventListener("click", buildQuiz);
+buildQuiz();
+
+/* =========================================================
+   COMÚ: esquema en estrella i preguntes
+   ========================================================= */
+var PORTPOS = { 1: { x: 110, y: 80, pp: [252, 186] }, 2: { x: 490, y: 80, pp: [348, 186] }, 3: { x: 110, y: 340, pp: [252, 234] }, 4: { x: 490, y: 340, pp: [348, 234] } };
+var MACS = { A: "00:1A", B: "00:1B", C: "00:1C", D: "00:1D" };
+function drawStar(svgId, isHub, ports, me) {
+  var svg = $(svgId); svg.innerHTML = "";
+  var L = { links: el("g", {}, svg), dev: el("g", {}, svg), fx: el("g", {}, svg), badges: el("g", {}, svg), dots: el("g", {}, svg) };
+  [1, 2, 3, 4].forEach(function (n) {
+    var p = PORTPOS[n], who = ports[n];
+    if (who) {
+      el("line", { x1: p.x, y1: p.y, x2: p.pp[0], y2: p.pp[1], stroke: C.grey, "stroke-width": 4 }, L.links);
+      var g = pcNode(L.dev, p.x, p.y, who, who === me ? "Tu · MAC …" + MACS[who] : "MAC …" + MACS[who], { w: who === me ? 110 : 76 });
+      if (who === me) { g._rect.setAttribute("fill", "#FFF4CC"); g._rect.setAttribute("stroke-width", 3); }
+    } else {
+      el("rect", { x: p.x - 38, y: p.y - 26, width: 76, height: 52, rx: 8, fill: "none", stroke: C.grey, "stroke-width": 2, "stroke-dasharray": "6 5" }, L.dev);
+      el("text", { x: p.x, y: p.y + 5, "text-anchor": "middle", "font-size": 14, fill: C.muted, text: "(buit)" }, L.dev);
+    }
+  });
+  el("rect", { x: 232, y: 178, width: 136, height: 64, rx: 12, fill: isHub ? C.blue : C.navy }, L.dev);
+  el("text", { x: 300, y: 216, "text-anchor": "middle", "font-size": 20, "font-weight": 700, fill: "#fff", text: isHub ? "HUB" : "SWITCH" }, L.dev);
+  [1, 2, 3, 4].forEach(function (n) {
+    var p = PORTPOS[n];
+    el("circle", { cx: p.pp[0], cy: p.pp[1], r: 11, fill: C.yellow, stroke: C.navy, "stroke-width": 2 }, L.dev);
+    el("text", { x: p.pp[0], y: p.pp[1] + 5, "text-anchor": "middle", "font-size": 13, "font-weight": 700, fill: C.navy, text: n }, L.dev);
+  });
+  return L;
+}
+function badgeY(n) { return PORTPOS[n].y < 200 ? PORTPOS[n].y - 44 : PORTPOS[n].y + 44; }
+function portOf(ports, who) { for (var n = 1; n <= 4; n++) if (ports[n] === who) return n; return null; }
+function html(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+/* Pregunta d'opció única: retorna una promesa amb l'opció triada, quan es prem «Continua» */
+function ask(box, q, opts, contLabel) {
+  return new Promise(function (resolve) {
+    var wrap = html("div", "stack"); wrap.style.gap = "8px";
+    wrap.appendChild(html("p", null, q)).style.margin = "0";
+    var fb = html("div", "feedback"); fb.setAttribute("role", "status");
+    var cont = html("button", "btn yel hidden", contLabel || "Continua");
+    var btns = opts.map(function (o, i) {
+      var b = html("button", "btn alt", o.t); b.type = "button"; b.style.textAlign = "left";
+      b.addEventListener("click", function () {
+        btns.forEach(function (x) { x.disabled = true; });
+        b.style.outline = "3px solid " + (o.ok ? C.ok : C.bad);
+        fb.textContent = (o.ok ? "Correcte. " : "No del tot. ") + o.fb;
+        fb.className = "feedback " + (o.ok ? "ok" : "bad");
+        cont.classList.remove("hidden"); cont.focus();
+        cont.onclick = function () { resolve(i); };
+      });
+      wrap.appendChild(b); return b;
+    });
+    wrap.appendChild(fb); wrap.appendChild(cont);
+    box.appendChild(wrap);
+  });
+}
+
+/* =========================================================
+   ETS EL SWITCH
+   ========================================================= */
+var STEPS5 = [
+  { src: "A", dst: "C" },
+  { src: "C", dst: "A" },
+  { src: "A", dst: "C" },
+  { src: "B", dst: "ALL" },
+  { src: "D", dst: "B" },
+  { move: true, text: "Canvi a l'aula: A apaga l'ordinador i se'n va. D desconnecta el seu cable del port 4 i el connecta al port 1, que ha quedat lliure." },
+  { src: "D", dst: "C" },
+  { src: "B", dst: "D" }
+];
+var G5 = {};
+function reset5() {
+  G5 = { i: 0, ports: { 1: "A", 2: "B", 3: "C", 4: "D" }, cam: {}, L: null };
+  G5.L = drawStar("sim5", false, G5.ports, null); renderCam5(); step5();
+}
+function renderCam5(hl) {
+  var box = $("cam5"), keys = Object.keys(G5.cam);
+  if (!keys.length) { box.innerHTML = '<p class="empty" style="margin:0">La llibreta és buida: acabes d\'engegar el switch.</p>'; return; }
+  keys.sort(function (a, b) { return G5.cam[a] - G5.cam[b]; });
+  var h = '<table class="t"><tr><th>Equip</th><th>Adreça MAC</th><th>Port</th></tr>';
+  keys.forEach(function (k) { h += "<tr><td" + (k === hl ? ' class="ok"' : "") + "><b>" + k + "</b></td><td" + (k === hl ? ' class="ok"' : "") + ">…" + MACS[k] + "</td><td" + (k === hl ? ' class="ok"' : "") + ">" + G5.cam[k] + "</td></tr>"; });
+  box.innerHTML = h + "</table>";
+}
+function step5() {
+  var body = $("g5-body"); body.innerHTML = ""; G5.L.badges.innerHTML = "";
+  var total = STEPS5.length;
+  $("g5-prog").textContent = "Pas " + Math.min(G5.i + 1, total) + " de " + total;
+  if (G5.i >= total) {
+    $("g5-title").textContent = "Fet!";
+    var p = html("div", "stack"); p.style.gap = "8px";
+    p.appendChild(html("p", null, "Has fet de switch. Les tres idees que han de quedar:")).style.margin = "0";
+    var ol = html("ol"); ol.style.margin = "0";
+    ["El switch aprèn mirant qui envia (la MAC d'origen), mai a qui va.", "Si no sap on és el destinatari, inunda. Quan ho sap, només envia pel port correcte.", "Si un equip canvia de port, la llibreta s'actualitza quan aquest equip torna a enviar."].forEach(function (t) { ol.appendChild(html("li", null, t)); });
+    p.appendChild(ol);
+    var again = html("button", "btn", "Torna a començar"); again.addEventListener("click", reset5); p.appendChild(again);
+    body.appendChild(p); $("g5-prog").textContent = "Acabat"; return;
+  }
+  var st = STEPS5[G5.i];
+  if (st.move) {
+    $("g5-title").textContent = "Canvi a l'aula";
+    body.appendChild(html("p", null, st.text)).style.marginTop = "0";
+    var ok = html("button", "btn yel", "Fet, ho canvio a l'esquema");
+    ok.addEventListener("click", function () {
+      G5.ports = { 1: "D", 2: "B", 3: "C", 4: null };
+      G5.L = drawStar("sim5", false, G5.ports, null);
+      body.innerHTML = "";
+      body.appendChild(html("p", null, "Fixa't en la teva llibreta: encara diu que D és al port 4 (i que A és al port 1). El switch no veu que algú canvia el cable. Ho descobrirà quan D torni a enviar.")).style.marginTop = "0";
+      var nx = html("button", "btn", "Següent trama"); nx.addEventListener("click", function () { G5.i++; step5(); }); body.appendChild(nx); nx.focus();
+    });
+    body.appendChild(ok); return;
+  }
+  var inPort = portOf(G5.ports, st.src);
+  $("g5-title").textContent = "Arriba una trama";
+  var info = html("div", "note");
+  info.innerHTML = "Entra pel <b>port " + inPort + "</b>.<br>MAC d'origen: <b>…" + MACS[st.src] + "</b> (" + st.src + ")<br>MAC de destí: <b>" + (st.dst === "ALL" ? "FF:FF:FF:FF:FF:FF</b> (difusió: per a tothom)" : "…" + MACS[st.dst] + "</b> (" + st.dst + ")");
+  body.appendChild(info);
+  var p1 = html("div"); p1.style.marginTop = "12px"; body.appendChild(p1);
+  // Pas 1: què apunta
+  var known = G5.cam[st.src], need = known !== inPort;
+  var learnTxt = known && known !== inPort ? "Canvio la llibreta: " + st.src + " ara és al port " + inPort + " (abans hi deia " + known + ")" : "Apunto: " + st.src + " és al port " + inPort;
+  var opts = [];
+  opts.push({ t: learnTxt, ok: need, fb: need ? "El switch aprèn mirant qui envia la trama (la MAC d'origen). Ha entrat pel port " + inPort + " i l'envia " + st.src + "." : "Ja tenies apuntat que " + st.src + " és al port " + inPort + ". No cal tornar-ho a escriure." });
+  if (st.dst !== "ALL") opts.push({ t: "Apunto: " + st.dst + " és al port " + inPort, ok: false, fb: "El switch aprèn de la MAC d'origen, no de la de destí. La trama ve de " + st.src + ", i és " + st.src + " qui és al port " + inPort + "." });
+  opts.push({ t: "No cal apuntar res", ok: !need, fb: !need ? "Ja tenies apuntat que " + st.src + " és al port " + inPort + "." : (known ? "La llibreta diu que " + st.src + " és al port " + known + ", però la trama ha entrat pel " + inPort + ". Cal corregir-ho." : "Encara no sabies on era " + st.src + ". Ara ho saps: ha entrat pel port " + inPort + ".") });
+  if (G5.i % 2) opts.reverse();
+  ask(p1, "1. Què apuntes a la llibreta?", opts, "Ho apunto i continuo").then(function () {
+    if (need) { G5.cam[st.src] = inPort; }
+    renderCam5(need ? st.src : null);
+    p1.innerHTML = "";
+    var done = html("p", "feedback ok", "Llibreta: " + st.src + " és al port " + inPort + "."); done.style.margin = "0"; p1.appendChild(done);
+    // Pas 2: per on surt
+    var connected = [1, 2, 3, 4].filter(function (n) { return G5.ports[n] && n !== inPort; });
+    var out, why;
+    if (st.dst === "ALL") { out = connected; why = "És una difusió (FF:FF:FF:FF:FF:FF): va per tots els ports menys per on ha entrat."; }
+    else if (G5.cam[st.dst]) { out = [G5.cam[st.dst]]; why = "Tens " + st.dst + " a la llibreta, al port " + G5.cam[st.dst] + ": només per aquest port."; }
+    else { out = connected; why = "No tens " + st.dst + " a la llibreta: l'inundes per tots els ports menys el " + inPort + ", per on ha entrat."; }
+    var p2 = html("div", "stack"); p2.style.gap = "8px"; p2.style.marginTop = "12px";
+    p2.appendChild(html("p", null, "2. Per quins ports l'envies? Marca'ls i prem «Comprova».")).style.margin = "0";
+    var pick = html("div", "portpick");
+    [1, 2, 3, 4].forEach(function (n) {
+      var b = html("button", null, "Port " + n + (G5.ports[n] ? "" : " (buit)")); b.type = "button"; b.setAttribute("aria-pressed", "false"); b.dataset.port = n;
+      if (n === inPort) { b.disabled = true; b.title = "És el port per on ha entrat"; }
+      b.addEventListener("click", function () { b.setAttribute("aria-pressed", b.getAttribute("aria-pressed") === "true" ? "false" : "true"); });
+      pick.appendChild(b);
+    });
+    p2.appendChild(pick);
+    var chk = html("button", "btn", "Comprova"); p2.appendChild(chk);
+    var fb = html("div", "feedback"); fb.setAttribute("role", "status"); p2.appendChild(fb);
+    body.appendChild(p2);
+    chk.addEventListener("click", function () {
+      var chosen = Array.prototype.slice.call(pick.querySelectorAll('button[aria-pressed="true"]')).map(function (b) { return +b.dataset.port; }).sort();
+      var real = out.slice().sort();
+      var ok = chosen.join() === real.join();
+      fb.textContent = (ok ? "Correcte. " : "No del tot: surt pels ports " + real.join(", ") + ". ") + why;
+      fb.className = "feedback " + (ok ? "ok" : "bad");
+      chk.disabled = true; Array.prototype.forEach.call(pick.children, function (b) { b.disabled = true; b.setAttribute("aria-pressed", real.indexOf(+b.dataset.port) >= 0 ? "true" : "false"); });
+      var s = PORTPOS[inPort];
+      travel(G5.L.dots, [[s.x, s.y], s.pp, CENTER]).then(function () {
+        return Promise.all(out.map(function (n) { var q = PORTPOS[n]; return travel(G5.L.dots, [CENTER, q.pp, [q.x, q.y]]); }));
+      }).then(function () {
+        out.forEach(function (n) {
+          var who = G5.ports[n];
+          badge(G5.L.badges, PORTPOS[n].x, badgeY(n), st.dst === "ALL" || who === st.dst ? "Rebut: és per a mi" : "Descartat: no és per a mi", st.dst === "ALL" || who === st.dst ? "ok" : "bad");
+        });
+        var nx = html("button", "btn yel", "Següent"); nx.addEventListener("click", function () { G5.i++; step5(); });
+        p2.appendChild(nx); nx.focus();
+      });
+    });
+  });
+}
+reset5();
+
+/* =========================================================
+   ETS L'ORDINADOR A
+   ========================================================= */
+var G6 = {};
+function log6(t, clear) { addLog("log6", [t], clear); }
+function sendHub6(who, ports, okFor) {
+  var n = portOf(ports, who), s = PORTPOS[n];
+  return travel(G6.L.dots, [[s.x, s.y], s.pp, CENTER]).then(function () {
+    var outs = [1, 2, 3, 4].filter(function (m) { return m !== n && ports[m]; });
+    return Promise.all(outs.map(function (m) { var q = PORTPOS[m]; return travel(G6.L.dots, [CENTER, q.pp, [q.x, q.y]]); })).then(function () {
+      outs.forEach(function (m) { var w = ports[m]; badge(G6.L.badges, PORTPOS[m].x, badgeY(m), w === okFor ? "Rebut: és per a mi" : "Descartat", w === okFor ? "ok" : "bad"); });
+    });
+  });
+}
+function crash6() {
+  var a = PORTPOS[1], d = PORTPOS[4];
+  return Promise.all([travel(G6.L.dots, [[a.x, a.y], a.pp, CENTER]), travel(G6.L.dots, [[d.x, d.y], d.pp, CENTER])]).then(function () { return burst(CENTER[0], CENTER[1] - 40, G6.L.fx); });
+}
+function count6(n, who, k) {
+  var g = badge(G6.L.badges, PORTPOS[n].x, badgeY(n), who + " espera " + k, "grey"), chain = Promise.resolve();
+  for (var i = k - 1; i >= 0; i--) (function (v) { chain = chain.then(function () { return wait(650); }).then(function () { g.remove(); g = badge(G6.L.badges, PORTPOS[n].x, badgeY(n), v ? who + " espera " + v : who + " envia", v ? "grey" : "ok"); }); })(i);
+  return chain;
+}
+function run6() {
+  var ports = { 1: "A", 2: "B", 3: "C", 4: "D" };
+  G6.L = drawStar("sim6", true, ports, "A");
+  var body = $("g6-body"); body.innerHTML = "";
+  log6("Estàs connectat al port 1 d'un hub, amb B, C i D.", true);
+  function prog(n) { $("g6-prog").textContent = "Situació " + n + " de 5"; }
+  function clear() { body.innerHTML = ""; G6.L.badges.innerHTML = ""; }
+  prog(1);
+  ask(body, "Vols enviar un missatge a C. Escoltes el cable: està en silenci, ningú no envia. Què fas?", [
+    { t: "L'envio ara", ok: true, fb: "Si el cable és lliure, pots enviar." },
+    { t: "M'espero", ok: false, fb: "No cal esperar: el cable està en silenci, pots enviar." }
+  ]).then(function () {
+    clear(); log6("Has enviat un missatge per a C.");
+    return sendHub6("A", ports, "C");
+  }).then(function () {
+    return ask(body, "Qui ha rebut el teu missatge?", [
+      { t: "Només C", ok: false, fb: "El hub no llegeix adreces: el copia a tots. B i D també el reben, tot i que el llencen." },
+      { t: "B, C i D", ok: true, fb: "El hub el copia a tots els ports. Només C se'l queda, però B i D l'han rebut: no hi ha privadesa." },
+      { t: "Només el hub", ok: false, fb: "El hub no es queda res: copia el missatge a tots els altres ports. B, C i D el reben." }
+    ]);
+  }).then(function () {
+    clear(); prog(2); log6("B, C i D han rebut el teu missatge. Només C se l'ha quedat.");
+    badge(G6.L.badges, PORTPOS[2].x, badgeY(2), "B està enviant…", "grey");
+    return ask(body, "Vols enviar un altre missatge a C. Escoltes el cable i sents que B està enviant. Què fas?", [
+      { t: "L'envio igualment", ok: false, fb: "Si envies ara, el teu missatge xocarà amb el de B dins del hub i tots dos es perdran. Cal esperar que B acabi." },
+      { t: "M'espero que B acabi", ok: true, fb: "Primer escoltar: si algú envia, s'espera." }
+    ]);
+  }).then(function () {
+    clear(); log6("Has esperat que B acabés.");
+    return sendHub6("B", ports, "D").then(function () { return wait(500); }).then(function () { G6.L.badges.innerHTML = ""; log6("B ha acabat. Ara el cable és lliure i envies el teu missatge."); return sendHub6("A", ports, "C"); });
+  }).then(function () {
+    clear(); prog(3);
+    body.appendChild(html("p", null, "Tens un tercer missatge per a C. Escoltes: lliure. Envies… però D, que també escoltava, comença a enviar en el mateix instant.")).style.marginTop = "0";
+    return crash6();
+  }).then(function () {
+    log6("El teu missatge i el de D han xocat dins del hub: col·lisió. Tots dos s'han perdut.");
+    return ask(body, "Hi ha hagut un xoc. Què fas?", [
+      { t: "El torno a enviar de seguida", ok: false, fb: "D farà el mateix i tornareu a xocar. Cal esperar." },
+      { t: "Espero un temps a l'atzar i ho torno a provar", ok: true, fb: "Si cadascú espera un temps diferent, la propera vegada no xocareu." },
+      { t: "Ja no l'envio", ok: false, fb: "El missatge es perdria. Cal tornar-ho a provar, però esperant una mica." }
+    ]);
+  }).then(function () {
+    clear(); prog(4);
+    return new Promise(function (resolve) {
+      function round(first) {
+        body.innerHTML = "";
+        body.appendChild(html("p", null, (first ? "" : "Heu triat el mateix número i heu tornat a xocar. Per això el temps ha de ser a l'atzar. ") + "Tria quant esperes (de 1 a 4). D en triarà un a l'atzar sense saber el teu.")).style.marginTop = "0";
+        var row = html("div", "portpick");
+        [1, 2, 3, 4].forEach(function (k) {
+          var b = html("button", null, String(k)); b.type = "button";
+          b.addEventListener("click", function () {
+            Array.prototype.forEach.call(row.children, function (x) { x.disabled = true; });
+            var d = 1 + Math.floor(Math.random() * 4);
+            if (d === k) {
+              log6("Tu has esperat " + k + " i D també " + d + ": heu tornat a xocar.");
+              crash6().then(function () { round(false); });
+              return;
+            }
+            log6("Tu esperes " + k + " i D espera " + d + ".");
+            G6.L.badges.innerHTML = "";
+            Promise.all([count6(1, "A", k), count6(4, "D", d)]).then(function () { return wait(250); }).then(function () {
+              G6.L.badges.innerHTML = "";
+              var firstW = k < d ? "A" : "D", second = firstW === "A" ? "D" : "A";
+              log6((firstW === "A" ? "Has acabat d'esperar primer i envies." : "D acaba d'esperar primer i envia.") + " El cable és lliure: arriba bé.");
+              return sendHub6(firstW, ports, firstW === "A" ? "C" : "B").then(function () { return wait(400); }).then(function () {
+                G6.L.badges.innerHTML = "";
+                log6((second === "A" ? "Després envies tu." : "Després envia D.") + " Tampoc no xoca.");
+                return sendHub6(second, ports, second === "A" ? "C" : "B");
+              });
+            }).then(function () { resolve(); });
+          });
+          row.appendChild(b);
+        });
+        body.appendChild(row);
+      }
+      round(true);
+    });
+  }).then(function () {
+    clear(); prog(5);
+    return ask(body, "Ara imagina que al hub hi ha 20 ordinadors en lloc de 4. Què passaria?", [
+      { t: "Hi hauria menys xocs", ok: false, fb: "Com més equips volen enviar pel mateix camí, més probable és que dos ho facin alhora." },
+      { t: "Hi hauria més xocs i més esperes", ok: true, fb: "Per això el hub es va deixar de fer servir. Amb un switch, cada equip té el seu camí i no hi ha xocs." },
+      { t: "Seria igual", ok: false, fb: "No: amb més equips compartint el mateix camí, hi ha més xocs i més esperes." }
+    ], "Acaba");
+  }).then(function () {
+    clear(); $("g6-prog").textContent = "Acabat";
+    log6("Activitat acabada.");
+    body.appendChild(html("p", null, "Has fet de l'ordinador A. Has vist que amb un hub tothom rep tot, que si dos envien alhora xoquen i que esperar un temps a l'atzar ho resol. A la pestanya «Col·lisions» pots comparar-ho amb un switch.")).style.marginTop = "0";
+    var again = html("button", "btn", "Torna a començar"); again.addEventListener("click", run6); body.appendChild(again);
+  });
+}
+run6();
+
+})();
+</script>
+</body>
+</html>
