@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Laboratori de dispositius de xarxa</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
 <style>
 :root {
   /* Paleta del departament (plantilla MP0225) */
@@ -44,7 +46,7 @@ h1 { margin: 4px 0 2px; font-size: 32px; line-height: 1.15; text-wrap: balance; 
 .speed select { padding: 6px 8px; border-radius: 8px; border: 1px solid #3E5A80; background: #0F2040; color: #fff; }
 
 nav.tabs { background: var(--paper); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 5; }
-.tabs-inner { max-width: 1240px; margin: 0 auto; display: flex; gap: 4px; overflow-x: auto; padding: 0 16px; }
+.tabs-inner { max-width: 1240px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 0 4px; padding: 0 16px; }
 .tab { border: 0; background: none; padding: 14px 14px 12px; color: var(--muted); font-weight: 700; cursor: pointer; border-bottom: 4px solid transparent; white-space: nowrap; }
 .tab .n { display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--ice); color: var(--navy); font-size: 14px; margin-right: 6px; }
 .tab[aria-selected="true"] { color: var(--navy); border-bottom-color: var(--yellow); }
@@ -118,6 +120,45 @@ table.t td.bad { background: var(--bad-bg) !important; }
 .scen button[aria-pressed="true"] { border-color: var(--navy); background: var(--ice); color: var(--navy); }
 
 footer { max-width: 1240px; margin: 0 auto; padding: 0 16px 30px; color: var(--muted); font-size: 14px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+/* ---------- Escape room ---------- */
+.esc { --night:#0B1430; --night2:#13214A; --neon:#F4C430; --cyan:#4FD1E8; --pink:#FF5FA2; --ink:#EAF1FA; --dim:#93A6C3; background: radial-gradient(circle at 80% 0%, #1B2E63 0%, var(--night) 55%); color: var(--ink); border-radius: 18px; padding: 20px; }
+.esc-head { display:flex; flex-wrap:wrap; gap:12px; justify-content:space-between; align-items:flex-start; margin-bottom:14px; }
+.esc-kicker { color: var(--cyan); font-weight:700; letter-spacing:.08em; text-transform:uppercase; font-size:14px; }
+.esc-title { font-family: "Bebas Neue", Impact, var(--font); font-size: 52px; line-height:1; margin: 4px 0 6px; color: var(--neon); letter-spacing:.03em; text-shadow: 0 0 18px rgba(244,196,48,.45); }
+.esc-intro { margin:0; max-width: 70ch; color: var(--ink); font-size: 18px; }
+.esc-progress { background: var(--night2); border:2px solid var(--neon); color: var(--neon); border-radius: 12px; padding: 10px 16px; font-weight:700; font-size: 20px; white-space:nowrap; }
+.esc-grid { display:grid; grid-template-columns: minmax(0,1.1fr) minmax(320px,1fr); gap:18px; align-items:start; }
+@media (max-width: 920px) { .esc-grid { grid-template-columns: 1fr; } }
+.esc-mapcard, .esc-panel { background: rgba(10,18,44,.75); border:1px solid #2A3F78; border-radius: 14px; padding: 14px; }
+.esc-hint { margin: 6px 0 0; color: var(--dim); font-size: 15px; }
+.esc-panel h3 { font-family: "Bebas Neue", Impact, var(--font); font-size: 34px; letter-spacing:.03em; color: var(--neon); margin: 0 0 4px; font-weight: 400; }
+.esc-panel .who { color: var(--cyan); font-weight:700; margin: 0 0 8px; }
+.esc-panel .say { background: var(--night2); border-left: 4px solid var(--pink); padding: 10px 12px; border-radius: 8px; margin: 0 0 12px; font-size: 18px; }
+.esc-panel .task { font-size: 19px; font-weight: 700; margin: 10px 0; }
+.esc-panel svg { width:100%; height:auto; display:block; background: #0E1A3D; border-radius: 10px; }
+.ebtn { border: 2px solid var(--cyan); background: transparent; color: var(--ink); border-radius: 10px; padding: 10px 16px; font-weight: 700; font-size: 18px; cursor: pointer; }
+.ebtn:hover { background: rgba(79,209,232,.15); }
+.ebtn[aria-pressed="true"] { background: var(--cyan); color: var(--night); }
+.ebtn.go { border-color: var(--neon); background: var(--neon); color: var(--night); }
+.ebtn:disabled { opacity: .4; cursor: not-allowed; }
+.erow { display:flex; flex-wrap:wrap; gap:10px; margin: 10px 0; }
+.efb { margin-top: 10px; font-weight: 700; font-size: 18px; padding: 10px 12px; border-radius: 8px; }
+.efb.ok { background: rgba(46,180,100,.18); color: #7CF0A8; border: 1px solid #2E9E62; }
+.efb.bad { background: rgba(255,95,162,.15); color: #FFB3D1; border: 1px solid var(--pink); }
+.ecards { display:grid; grid-template-columns: repeat(auto-fit, minmax(150px,1fr)); gap: 10px; margin: 10px 0; }
+.ecard { border: 2px solid #2A3F78; background: var(--night2); border-radius: 12px; padding: 10px; color: var(--ink); text-align:left; cursor:pointer; font-size: 16px; }
+.ecard b { color: var(--neon); display:block; font-size: 18px; margin-bottom: 4px; }
+.ecard[aria-pressed="true"] { border-color: var(--pink); box-shadow: 0 0 0 2px var(--pink) inset; }
+.ecard code { font-family: Consolas, "Courier New", monospace; color: var(--cyan); }
+.einput { width: 90px; font-size: 26px; text-align:center; padding: 6px; border-radius: 10px; border: 2px solid var(--cyan); background: var(--night); color: var(--neon); font-weight: 700; }
+.esel { font-size: 17px; padding: 8px; border-radius: 8px; border: 2px solid var(--cyan); background: var(--night); color: var(--ink); }
+.ecam { width:100%; border-collapse: collapse; margin: 8px 0; font-size: 17px; }
+.ecam th { text-align:left; color: var(--neon); border-bottom: 1px solid #2A3F78; padding: 6px; }
+.ecam td { padding: 6px; border-bottom: 1px solid #1E2F5E; }
+.esc-final { text-align:center; padding: 10px 0; }
+.esc-final .big { font-family: "Bebas Neue", Impact, var(--font); font-size: 64px; color: var(--neon); text-shadow: 0 0 22px rgba(244,196,48,.6); line-height: 1; }
+.esc-final ol { text-align:left; display:inline-block; font-size: 18px; margin: 12px auto; }
+
 @media (prefers-reduced-motion: reduce) { ol.log li.new { animation: none; } }
 </style>
 </head>
@@ -148,6 +189,7 @@ footer { max-width: 1240px; margin: 0 auto; padding: 0 16px 30px; color: var(--m
     <button class="tab" role="tab" data-view="router" aria-selected="false"><span class="n">5</span>Router i porta d'enllaç</button>
     <button class="tab" role="tab" data-view="dominis" aria-selected="false"><span class="n">6</span>Comptar dominis</button>
     <button class="tab" role="tab" data-view="repas" aria-selected="false"><span class="n">7</span>Repàs: taula resum</button>
+    <button class="tab" role="tab" data-view="escape" aria-selected="false"><span class="n">8</span>Joc: el cop</button>
   </div>
 </nav>
 
@@ -426,6 +468,26 @@ footer { max-width: 1240px; margin: 0 auto; padding: 0 16px 30px; color: var(--m
           <li>Esperar un temps a l'atzar i tornar-ho a provar.</li>
         </ol>
       </div>
+    </div>
+  </div>
+</section>
+<!-- ============ ESCAPE: EL COP ============ -->
+<section class="view" id="view-escape">
+  <div class="esc">
+    <div class="esc-head">
+      <div>
+        <div class="esc-kicker">Joc de repàs · A1 · La història és inventada</div>
+        <h2 class="esc-title">El cop de Port Neó</h2>
+        <p class="esc-intro">Sou el tècnic de la banda del Moll. La Cap prepara el gran cop al Banc Central de Port Neó, però abans necessita algú que entengui la xarxa de cada lloc. Resoleu les 5 missions en ordre. Un error no compta: llegiu l'explicació i torneu-ho a provar.</p>
+      </div>
+      <div class="esc-progress" aria-live="polite"><span id="esc-done">0</span> / 5 missions</div>
+    </div>
+    <div class="esc-grid">
+      <div class="esc-mapcard">
+        <svg id="esc-map" viewBox="0 0 640 420" role="img" aria-label="Mapa de Port Neó amb les cinc missions"></svg>
+        <p class="esc-hint">Clica la missió que brilla al mapa.</p>
+      </div>
+      <div class="esc-panel" id="esc-panel"></div>
     </div>
   </div>
 </section>
@@ -1290,6 +1352,297 @@ function run6() {
   });
 }
 run6();
+
+
+/* =========================================================
+   ESCAPE ROOM: EL COP DE PORT NEÓ
+   ========================================================= */
+var ESC = { done: 0 };
+var EMARK = [
+  { x: 95, y: 95, name: "El garatge" },
+  { x: 270, y: 70, name: "La centraleta" },
+  { x: 470, y: 105, name: "Banc Central" },
+  { x: 540, y: 265, name: "El pis franc" },
+  { x: 300, y: 330, name: "El moll" }
+];
+function escMap() {
+  var svg = $("esc-map"); svg.innerHTML = "";
+  el("rect", { x: 0, y: 0, width: 640, height: 420, fill: "#0E1A3D" }, svg);
+  el("rect", { x: 0, y: 370, width: 640, height: 50, fill: "#10306A" }, svg);
+  el("text", { x: 620, y: 403, "text-anchor": "end", "font-size": 13, fill: "#4FD1E8", "letter-spacing": "3", text: "PORT NEÓ · MOLL" }, svg);
+  for (var gx = 0; gx < 640; gx += 80) for (var gy = 0; gy <= 280; gy += 70) {
+    el("rect", { x: gx + 8, y: gy + 8, width: 64, height: 54, rx: 4, fill: (gx + gy) % 160 === 0 ? "#16264F" : "#132248" }, svg);
+  }
+  for (var i = 0; i < EMARK.length - 1; i++) {
+    var a = EMARK[i], b = EMARK[i + 1];
+    el("line", { x1: a.x, y1: a.y, x2: b.x, y2: b.y, stroke: i < ESC.done ? "#F4C430" : "#3A4A70", "stroke-width": i < ESC.done ? 4 : 3, "stroke-dasharray": i < ESC.done ? "none" : "8 7" }, svg);
+  }
+  EMARK.forEach(function (m, i) {
+    var state = i < ESC.done ? "done" : i === ESC.done ? "active" : "locked";
+    var g = el("g", { transform: "translate(" + m.x + "," + m.y + ")", style: state === "locked" ? "cursor:not-allowed" : "cursor:pointer", tabindex: state === "locked" ? "-1" : "0", role: "button", "aria-label": "Missió " + (i + 1) + ": " + m.name + (state === "locked" ? " (bloquejada)" : "") }, svg);
+    if (state === "active") {
+      var halo = el("circle", { r: 30, fill: "none", stroke: "#F4C430", "stroke-width": 2, opacity: .7 }, g);
+      if (!reduced) { el("animate", { attributeName: "r", values: "26;36;26", dur: "1.8s", repeatCount: "indefinite" }, halo); el("animate", { attributeName: "opacity", values: ".8;.1;.8", dur: "1.8s", repeatCount: "indefinite" }, halo); }
+    }
+    el("circle", { r: 22, fill: state === "done" ? "#4FD1E8" : state === "active" ? "#F4C430" : "#2A3A62", stroke: "#0B1430", "stroke-width": 3 }, g);
+    el("text", { y: 8, "text-anchor": "middle", "font-size": 22, "font-weight": 700, fill: state === "locked" ? "#93A6C3" : "#0B1430", text: state === "done" ? "✓" : String(i + 1) }, g);
+    var lbl = m.name;
+    el("rect", { x: -lbl.length * 4.6 - 8, y: 28, width: lbl.length * 9.2 + 16, height: 24, rx: 6, fill: "#0B1430", opacity: .85 }, g);
+    el("text", { y: 45, "text-anchor": "middle", "font-size": 15, "font-weight": 700, fill: state === "locked" ? "#93A6C3" : "#EAF1FA", text: lbl }, g);
+    if (state !== "locked") {
+      g.addEventListener("click", function () { escOpen(i); });
+      g.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); escOpen(i); } });
+    }
+  });
+  $("esc-done").textContent = ESC.done;
+}
+function escPanel() { var p = $("esc-panel"); p.innerHTML = ""; return p; }
+function escHome() {
+  var p = escPanel();
+  if (ESC.done >= 5) return escFinal();
+  p.appendChild(html("h3", null, "La Cap us espera"));
+  p.appendChild(html("p", "who", "Missatge de la Cap"));
+  p.appendChild(html("p", "say", ESC.done === 0 ? "Tècnic, el pla és senzill: primer entens la xarxa de cada lloc, després fem el cop. Comença pel garatge." : "Bona feina. Següent parada: " + EMARK[ESC.done].name + "."));
+  var go = html("button", "ebtn go", "Comença la missió " + (ESC.done + 1) + ": " + EMARK[ESC.done].name);
+  go.addEventListener("click", function () { escOpen(ESC.done); });
+  p.appendChild(go);
+}
+function escWin(i, text) {
+  if (i === ESC.done) ESC.done++;
+  escMap();
+  return function (box) {
+    var w = html("div", "efb ok", "Missió completada. " + (text || ""));
+    box.appendChild(w);
+    var back = html("button", "ebtn go", ESC.done >= 5 ? "Veure el final" : "Torna al mapa");
+    back.style.marginTop = "10px";
+    back.addEventListener("click", function () { ESC.done >= 5 ? escFinal() : escHome(); });
+    box.appendChild(back); back.focus();
+  };
+}
+function escHeader(p, i, who, say) {
+  p.appendChild(html("h3", null, "Missió " + (i + 1) + " · " + EMARK[i].name));
+  p.appendChild(html("p", "who", who));
+  p.appendChild(html("p", "say", say));
+}
+function escStar(svg, label, names, me) {
+  svg.setAttribute("viewBox", "0 0 600 420"); svg.innerHTML = "";
+  var L = { links: el("g", {}, svg), dev: el("g", {}, svg), badges: el("g", {}, svg), dots: el("g", {}, svg) };
+  [1, 2, 3, 4].forEach(function (n) {
+    var p = PORTPOS[n];
+    el("line", { x1: p.x, y1: p.y, x2: p.pp[0], y2: p.pp[1], stroke: "#4FD1E8", "stroke-width": 3, opacity: .7 }, L.links);
+    var g = pcNode(L.dev, p.x, p.y, names[n - 1], "port " + n);
+    if (names[n - 1] === me) g._rect.setAttribute("fill", "#FFF4CC");
+  });
+  el("rect", { x: 232, y: 178, width: 136, height: 64, rx: 12, fill: label === "?" ? "#FF5FA2" : "#1F5A8A", stroke: "#F4C430", "stroke-width": 2 }, L.dev);
+  el("text", { x: 300, y: 218, "text-anchor": "middle", "font-size": label === "?" ? 34 : 20, "font-weight": 700, fill: "#fff", text: label }, L.dev);
+  [1, 2, 3, 4].forEach(function (n) {
+    var p = PORTPOS[n];
+    el("circle", { cx: p.pp[0], cy: p.pp[1], r: 11, fill: "#F4C430", stroke: "#0B1430", "stroke-width": 2 }, L.dev);
+    el("text", { x: p.pp[0], y: p.pp[1] + 5, "text-anchor": "middle", "font-size": 13, "font-weight": 700, fill: "#0B1430", text: n }, L.dev);
+  });
+  return L;
+}
+function escChoice(box, opts, onPick) {
+  var row = html("div", "erow"), fb = html("div", "efb hidden");
+  var btns = opts.map(function (o) {
+    var b = html("button", "ebtn", o.t); b.type = "button";
+    b.addEventListener("click", function () {
+      fb.classList.remove("hidden");
+      fb.className = "efb " + (o.ok ? "ok" : "bad");
+      fb.textContent = (o.ok ? "Correcte. " : "No. ") + o.fb + (o.ok ? "" : " Torneu-ho a provar.");
+      if (o.ok) { btns.forEach(function (x) { x.disabled = true; }); onPick(); }
+    });
+    row.appendChild(b); return b;
+  });
+  box.appendChild(row); box.appendChild(fb);
+}
+function escOpen(i) { [escM1, escM2, escM3, escM4, escM5][i](i); }
+
+/* Missió 1: el garatge (hub) */
+function escM1(i) {
+  var p = escPanel();
+  escHeader(p, i, "En Grau, el mecànic de la banda", "Al garatge hi ha quatre portàtils connectats a una caixa vella. M'han dit que des de qualsevol portàtil es pot llegir el que envien els altres. Mira què passa quan el portàtil A envia un missatge a C.");
+  var svg = document.createElementNS(NS, "svg"); p.appendChild(svg);
+  var L = escStar(svg, "?", ["A", "B", "C", "D"], null);
+  var see = html("button", "ebtn go", "Mira què passa"); p.appendChild(see);
+  var q = html("div"); p.appendChild(q);
+  see.addEventListener("click", function () {
+    see.disabled = true; L.badges.innerHTML = "";
+    var s = PORTPOS[1];
+    travel(L.dots, [[s.x, s.y], s.pp, CENTER]).then(function () {
+      return Promise.all([2, 3, 4].map(function (n) { var t = PORTPOS[n]; return travel(L.dots, [CENTER, t.pp, [t.x, t.y]]); }));
+    }).then(function () {
+      badge(L.badges, PORTPOS[2].x, badgeY(2), "També li arriba", "bad");
+      badge(L.badges, PORTPOS[3].x, badgeY(3), "Era per a mi", "ok");
+      badge(L.badges, PORTPOS[4].x, badgeY(4), "També li arriba", "bad");
+      see.disabled = false; see.textContent = "Torna-ho a veure";
+      if (q.childNodes.length) return;
+      q.appendChild(html("p", "task", "Quin aparell hi ha a la caixa del mig?"));
+      escChoice(q, [
+        { t: "Repetidor", ok: false, fb: "El repetidor només té dos ports: entra per un i surt per l'altre." },
+        { t: "Hub", ok: true, fb: "El hub no llegeix adreces i copia tot el que rep a tots els ports. Per això tothom pot llegir-ho tot." },
+        { t: "Switch", ok: false, fb: "El switch aprèn on és cada equip i, quan ho sap, envia només pel port del destinatari." },
+        { t: "Router", ok: false, fb: "El router uneix xarxes diferents i mira l'adreça IP. Aquí tots són a la mateixa xarxa." }
+      ], function () { escWin(i, "Al garatge hi ha un hub: tots comparteixen el mateix camí.")(q); });
+    });
+  });
+}
+
+/* Missió 2: la centraleta (switch i taula CAM) */
+function escM2(i) {
+  var p = escPanel();
+  escHeader(p, i, "La Nora, la que ho sap tot de telèfons", "A la centraleta del banc hi ha un switch. He aconseguit veure la seva llibreta: només sap on són A i B. Ara entra pel port 3 una trama de C per a D.");
+  var svg = document.createElementNS(NS, "svg"); p.appendChild(svg);
+  var L = escStar(svg, "SWITCH", ["A", "B", "C", "D"], null);
+  var cam = html("table", "ecam"); cam.innerHTML = "<tr><th>Equip</th><th>Port</th></tr><tr><td>A</td><td>1</td></tr><tr><td>B</td><td>2</td></tr>";
+  p.appendChild(cam);
+  p.appendChild(html("p", "task", "Pas 1. Per quins ports surt la trama? Marqueu-los."));
+  var row = html("div", "erow");
+  [1, 2, 4].forEach(function (n) { var b = html("button", "ebtn", "Port " + n); b.type = "button"; b.setAttribute("aria-pressed", "false"); b.dataset.port = n; b.addEventListener("click", function () { b.setAttribute("aria-pressed", b.getAttribute("aria-pressed") === "true" ? "false" : "true"); }); row.appendChild(b); });
+  p.appendChild(row);
+  var chk = html("button", "ebtn go", "Comprova"); p.appendChild(chk);
+  var fb = html("div", "efb hidden"); p.appendChild(fb);
+  var step2 = html("div"); p.appendChild(step2);
+  chk.addEventListener("click", function () {
+    var sel = Array.prototype.slice.call(row.querySelectorAll('[aria-pressed="true"]')).map(function (b) { return +b.dataset.port; }).sort().join();
+    fb.classList.remove("hidden");
+    if (sel !== "1,2,4") { fb.className = "efb bad"; fb.textContent = "No. Mireu la llibreta: el switch sap on és D? Si no ho sap, què fa? Torneu-ho a provar."; return; }
+    fb.className = "efb ok"; fb.textContent = "Correcte. D no és a la llibreta, així que el switch inunda: envia per tots els ports menys el 3, per on ha entrat.";
+    chk.disabled = true; Array.prototype.forEach.call(row.children, function (b) { b.disabled = true; });
+    var s = PORTPOS[3];
+    travel(L.dots, [[s.x, s.y], s.pp, CENTER]).then(function () {
+      return Promise.all([1, 2, 4].map(function (n) { var t = PORTPOS[n]; return travel(L.dots, [CENTER, t.pp, [t.x, t.y]]); }));
+    }).then(function () {
+      step2.appendChild(html("p", "task", "Pas 2. Què apunta ara el switch a la llibreta?"));
+      escChoice(step2, [
+        { t: "D és al port 3", ok: false, fb: "El switch aprèn de qui envia la trama (la MAC d'origen), no de qui la rep." },
+        { t: "C és al port 3", ok: true, fb: "La trama ve de C i ha entrat pel port 3: el switch ho apunta." },
+        { t: "No apunta res", ok: false, fb: "Cada trama que entra li diu on és qui l'envia. Ara sap una cosa nova." }
+      ], function () {
+        cam.innerHTML += "<tr><td><b>C</b></td><td><b>3</b></td></tr>";
+        escWin(i, "El switch aprèn mirant qui envia i inunda quan no sap on és el destinatari.")(step2);
+      });
+    });
+  });
+}
+
+/* Missió 3: el banc (dominis) */
+function escM3(i) {
+  var p = escPanel();
+  escHeader(p, i, "La Cap", "Aquest és el plànol de la xarxa del Banc Central. Per saber on podem fer soroll sense que ens descobreixin, necessito saber quants dominis hi ha. La caixa forta s'obre amb un codi de dues xifres: col·lisió i difusió.");
+  var svg = document.createElementNS(NS, "svg"); svg.setAttribute("viewBox", "0 0 600 300"); p.appendChild(svg);
+  var R = [300, 50], S = [150, 160], H = [450, 160];
+  var lefts = [[50, 260], [150, 260], [250, 260]], rights = [[350, 260], [450, 260], [550, 260]];
+  var lines = [];
+  function ln(a, b, dom) { lines.push([el("line", { x1: a[0], y1: a[1], x2: b[0], y2: b[1], stroke: "#4FD1E8", "stroke-width": 3, opacity: .7 }, svg), dom]); }
+  ln(R, S, 3); ln(R, H, 4); lefts.forEach(function (q, k) { ln(S, q, k); }); rights.forEach(function (q) { ln(H, q, 4); });
+  el("circle", { cx: R[0], cy: R[1], r: 28, fill: "#F4C430" }, svg); el("text", { x: R[0], y: R[1] + 5, "text-anchor": "middle", "font-size": 13, "font-weight": 700, fill: "#0B1430", text: "ROUTER" }, svg);
+  [[S, "SWITCH", "#1F5A8A"], [H, "HUB", "#FF5FA2"]].forEach(function (d) { el("rect", { x: d[0][0] - 42, y: d[0][1] - 18, width: 84, height: 36, rx: 9, fill: d[2] }, svg); el("text", { x: d[0][0], y: d[0][1] + 5, "text-anchor": "middle", "font-size": 13, "font-weight": 700, fill: "#fff", text: d[1] }, svg); });
+  lefts.concat(rights).forEach(function (q) { el("rect", { x: q[0] - 22, y: q[1] - 14, width: 44, height: 28, rx: 5, fill: "#fff" }, svg); el("text", { x: q[0], y: q[1] + 5, "text-anchor": "middle", "font-size": 12, "font-weight": 700, fill: "#14284B", text: "PC" }, svg); });
+  var row = html("div", "erow"); row.style.alignItems = "flex-end";
+  var c1 = html("label", null); c1.innerHTML = '<div style="color:#93A6C3;font-weight:700">Col·lisió</div>'; var i1 = html("input", "einput"); i1.type = "number"; i1.min = 0; i1.id = "esc-col"; c1.appendChild(i1);
+  var c2 = html("label", null); c2.innerHTML = '<div style="color:#93A6C3;font-weight:700">Difusió</div>'; var i2 = html("input", "einput"); i2.type = "number"; i2.min = 0; i2.id = "esc-bd"; c2.appendChild(i2);
+  var chk = html("button", "ebtn go", "Obre la caixa forta");
+  row.appendChild(c1); row.appendChild(c2); row.appendChild(chk); p.appendChild(row);
+  var fb = html("div", "efb hidden"); p.appendChild(fb);
+  var fails = 0, end = html("div"); p.appendChild(end);
+  chk.addEventListener("click", function () {
+    fb.classList.remove("hidden");
+    if (+i1.value === 5 && +i2.value === 2 && i1.value !== "" && i2.value !== "") {
+      chk.disabled = true; fb.className = "efb ok";
+      fb.textContent = "Codi 5-2 correcte. Costat del switch: 3 PC i el cable fins al router = 4 dominis. Costat del hub: el hub, els seus PC i el cable fins al router = 1. Total 5. Difusió: 2, una per cada connexió del router.";
+      var cols = ["#F4C430", "#FF5FA2", "#7CF0A8", "#4FD1E8", "#B794F6"];
+      lines.forEach(function (l) { l[0].setAttribute("stroke", cols[l[1]]); l[0].setAttribute("stroke-width", 6); l[0].setAttribute("opacity", 1); });
+      escWin(i, "Cada color del plànol és un domini de col·lisió.")(end);
+      return;
+    }
+    fails++; fb.className = "efb bad";
+    fb.textContent = "La caixa no s'obre. " + (fails >= 2 ? "Pista: col·lisió, compteu cada cable que arriba al switch o al router; el hub i tot el que hi penja compten com un de sol. Difusió: compteu les connexions del router." : "Reviseu-ho i torneu-ho a provar.");
+  });
+}
+
+/* Missió 4: el pis franc (porta d'enllaç) */
+function escM4(i) {
+  var p = escPanel();
+  escHeader(p, i, "En Grau", "Al pis franc tenim tres portàtils a la xarxa 192.168.5.x. El router és el 192.168.5.1. Per al cop, els tres han de poder sortir a Internet, però algú els ha configurat malament.");
+  p.appendChild(html("p", "task", "Quins portàtils NO podran sortir de la seva xarxa? Marqueu-los."));
+  var data = [
+    { n: "Portàtil 1", ip: "192.168.5.20", gw: "192.168.5.1", bad: false, why: "Té la porta d'enllaç correcta: l'adreça del router a la seva xarxa." },
+    { n: "Portàtil 2", ip: "192.168.5.21", gw: "(cap)", bad: true, why: "No té porta d'enllaç: pot parlar amb la seva xarxa, però no sap per on sortir-ne." },
+    { n: "Portàtil 3", ip: "192.168.5.22", gw: "192.168.9.1", bad: true, why: "La porta d'enllaç és d'una altra xarxa (192.168.9.x). La sortida ha de ser al seu mateix «barri»." }
+  ];
+  var grid = html("div", "ecards");
+  var cards = data.map(function (d) {
+    var b = html("button", "ecard"); b.type = "button"; b.setAttribute("aria-pressed", "false");
+    b.innerHTML = "<b>" + d.n + "</b>IP: <code>" + d.ip + "</code><br>Màscara: <code>255.255.255.0</code><br>Porta d'enllaç: <code>" + d.gw + "</code>";
+    b.addEventListener("click", function () { b.setAttribute("aria-pressed", b.getAttribute("aria-pressed") === "true" ? "false" : "true"); });
+    grid.appendChild(b); return b;
+  });
+  p.appendChild(grid);
+  var chk = html("button", "ebtn go", "Comprova"); p.appendChild(chk);
+  var fb = html("div", "efb hidden"); p.appendChild(fb);
+  var end = html("div"); p.appendChild(end);
+  chk.addEventListener("click", function () {
+    var ok = data.every(function (d, k) { return (cards[k].getAttribute("aria-pressed") === "true") === d.bad; });
+    fb.classList.remove("hidden");
+    if (!ok) { fb.className = "efb bad"; fb.textContent = "No del tot. Mireu la porta d'enllaç de cada portàtil: existeix? És de la mateixa xarxa 192.168.5.x? Torneu-ho a provar."; return; }
+    chk.disabled = true; cards.forEach(function (c) { c.disabled = true; });
+    fb.className = "efb ok"; fb.textContent = "Correcte. " + data.filter(function (d) { return d.bad; }).map(function (d) { return d.n + ": " + d.why; }).join(" ");
+    escWin(i, "Sense una porta d'enllaç correcta, un equip no pot sortir de la seva xarxa.")(end);
+  });
+}
+
+/* Missió 5: el moll (tria l'aparell) */
+function escM5(i) {
+  var p = escPanel();
+  escHeader(p, i, "La Cap", "Última peça del pla. Al magatzem del moll muntem el centre d'operacions. Triem l'aparell adequat per a cada necessitat i marxem.");
+  var needs = [
+    { t: "Connectar per cable els 10 ordinadors del magatzem entre ells", ok: ["Switch"], hint: "Cal un aparell que connecti molts equips de la mateixa xarxa i envii cada missatge només al destinatari." },
+    { t: "Donar wifi als mòbils de la banda, a la xarxa per cable que ja tenim", ok: ["Punt d'accés"], near: "Router", hint: "Busqueu l'aparell que fa el wifi i el connecta a la xarxa de cable." },
+    { t: "Que tot el magatzem pugui sortir a Internet", ok: ["Router"], hint: "Internet és una altra xarxa. Quin aparell uneix xarxes diferents?" }
+  ];
+  var devs = ["Tria…", "Hub", "Switch", "Router", "Punt d'accés", "Repetidor"];
+  var sels = needs.map(function (n, k) {
+    var wrap = html("div"); wrap.style.margin = "10px 0";
+    var lab = html("label", "task", (k + 1) + ". " + n.t); lab.htmlFor = "esc5-" + k; lab.style.display = "block";
+    var s = html("select", "esel"); s.id = "esc5-" + k;
+    devs.forEach(function (d, j) { var o = document.createElement("option"); o.textContent = d; o.value = j ? d : ""; s.appendChild(o); });
+    wrap.appendChild(lab); wrap.appendChild(s); p.appendChild(wrap); return s;
+  });
+  var chk = html("button", "ebtn go", "Comprova i marxem"); p.appendChild(chk);
+  var fb = html("div", "efb hidden"); p.appendChild(fb);
+  var end = html("div"); p.appendChild(end);
+  chk.addEventListener("click", function () {
+    var msgs = [], allOk = true;
+    needs.forEach(function (n, k) {
+      var v = sels[k].value;
+      if (n.ok.indexOf(v) >= 0) return;
+      allOk = false;
+      if (!v) msgs.push((k + 1) + ": encara no heu triat.");
+      else if (n.near && v === n.near) msgs.push((k + 1) + ": gairebé. El router de casa ho fa perquè porta un punt d'accés a dins. Quin és l'aparell que fa el wifi?");
+      else msgs.push((k + 1) + ": " + n.hint);
+    });
+    fb.classList.remove("hidden");
+    if (!allOk) { fb.className = "efb bad"; fb.textContent = "Encara no. " + msgs.join(" "); return; }
+    chk.disabled = true; sels.forEach(function (s) { s.disabled = true; });
+    fb.className = "efb ok"; fb.textContent = "Correcte: switch per connectar els equips, punt d'accés per al wifi i router per sortir a Internet.";
+    escWin(i, "El centre d'operacions està muntat.")(end);
+  });
+}
+
+function escFinal() {
+  var p = escPanel();
+  var f = html("div", "esc-final");
+  f.appendChild(html("div", "big", "Cop completat"));
+  f.appendChild(html("p", "say", "La Cap: «Sense el tècnic no ho hauríem aconseguit.» Ara, el que us heu d'endur per a l'examen:"));
+  var ol = html("ol");
+  ["El hub copia tot a tothom: un sol domini de col·lisió.", "El switch aprèn de la MAC d'origen i inunda quan no coneix el destinatari.", "Col·lisió: un domini per cada cable de switch o router. Difusió: un per cada connexió del router.", "Sense una porta d'enllaç correcta, un equip no surt de la seva xarxa.", "Switch per connectar equips, punt d'accés per al wifi, router per sortir a altres xarxes."].forEach(function (t) { ol.appendChild(html("li", null, t)); });
+  f.appendChild(ol);
+  var again = html("button", "ebtn", "Torna a començar"); again.addEventListener("click", function () { ESC.done = 0; escMap(); escHome(); });
+  f.appendChild(html("br")); f.appendChild(again);
+  p.appendChild(f);
+}
+escMap(); escHome();
 
 })();
 </script>
